@@ -1,6 +1,7 @@
 # ADR-0004: Money is integer minor units (bigint), with per-asset scale
 
-- Status: Proposed (pending Phase 1 approval)
+- Status: Accepted
+- Approved: 2026-11-16 (maintainer approved PLAN.md with defaults)
 - Date: 2026-11-16
 
 ## Context

@@ -1,6 +1,7 @@
 # ADR-0007: Runtime and development dependencies
 
-- Status: Proposed (pending Phase 1 approval)
+- Status: Accepted
+- Approved: 2026-11-16 (maintainer approved PLAN.md with defaults)
 - Date: 2026-11-16
 
 Versions are from npm on 2026-11-16 (docs/research/tooling-libraries.md, stellar-js-sdk.md). All

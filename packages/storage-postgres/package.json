@@ -1,0 +1,21 @@
+{
+  "name": "@stellarbooks/storage-postgres",
+  "version": "0.0.0",
+  "description": "PostgreSQL migrations and repositories for the append-only StellarBooks journal.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

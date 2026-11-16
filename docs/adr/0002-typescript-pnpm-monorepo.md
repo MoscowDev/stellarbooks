@@ -1,6 +1,7 @@
 # ADR-0002: TypeScript pnpm monorepo, Node 22.12+, TypeScript 6.0.x
 
-- Status: Proposed (pending Phase 1 approval)
+- Status: Accepted
+- Approved: 2026-11-16 (maintainer approved PLAN.md with defaults)
 - Date: 2026-11-16
 
 ## Context

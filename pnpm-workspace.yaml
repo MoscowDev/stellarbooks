@@ -1,0 +1,14 @@
+packages:
+  - packages/*
+
+# Settings (pnpm reads these from this file; see https://pnpm.io/settings, retrieved 2026-11-16)
+saveExact: true
+engineStrict: true
+strictPeerDependencies: true
+
+# Audit exceptions. Each must be recorded in docs/adr/0009-dev-tooling.md and docs/OPEN-QUESTIONS.md.
+audit:
+  ignore:
+    # minimatch <11.0.1 (dev-only, via typedoc and typescript-eslint; patterns are repo-controlled).
+    # No fix exists within the ^10 range those packages declare. Remove once they move to minimatch 11.
+    - GHSA-g3hv-75wg-m249

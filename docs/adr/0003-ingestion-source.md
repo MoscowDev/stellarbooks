@@ -1,6 +1,7 @@
 # ADR-0003: Ingestion source is ledger meta XDR behind a pluggable `LedgerSource`
 
-- Status: Proposed (pending Phase 1 approval; see OPEN-QUESTIONS Q-010)
+- Status: Accepted
+- Approved: 2026-11-16 (maintainer approved PLAN.md with defaults)
 - Date: 2026-11-16
 
 ## Context

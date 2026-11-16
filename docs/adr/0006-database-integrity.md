@@ -1,6 +1,7 @@
 # ADR-0006: Database-enforced balance, append-only and idempotency
 
-- Status: Proposed (pending Phase 1 approval)
+- Status: Accepted
+- Approved: 2026-11-16 (maintainer approved PLAN.md with defaults)
 - Date: 2026-11-16
 
 ## Context

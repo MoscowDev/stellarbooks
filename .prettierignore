@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+dist/
+coverage/
+docs/api/
+fixtures/
+# Research notes and ADRs are hand-formatted prose with source quotes; do not reflow.
+docs/research/
+docs/adr/
+docs/prior-art.md

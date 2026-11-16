@@ -1,0 +1,21 @@
+{
+  "name": "@stellarbooks/core",
+  "version": "0.0.0",
+  "description": "Pure domain logic for StellarBooks: amounts, chart of accounts, journal entries, mapping rules and report calculations. No I/O.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

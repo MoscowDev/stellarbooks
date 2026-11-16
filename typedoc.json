@@ -1,0 +1,23 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "StellarBooks API reference",
+  "entryPoints": [
+    "packages/core/src/index.ts",
+    "packages/stellar-ingest/src/index.ts",
+    "packages/storage-postgres/src/index.ts",
+    "packages/reports/src/index.ts",
+    "packages/cli/src/index.ts"
+  ],
+  "tsconfig": "tsconfig.test.json",
+  "out": "docs/api",
+  "readme": "none",
+  "disableSources": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "treatWarningsAsErrors": true,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": true
+  }
+}

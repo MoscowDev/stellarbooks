@@ -1,0 +1,21 @@
+{
+  "name": "@stellarbooks/reports",
+  "version": "0.0.0",
+  "description": "StellarBooks reports: general ledger, trial balance, account statement, balance snapshot, period close, CSV and JSON export.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

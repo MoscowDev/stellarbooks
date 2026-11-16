@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/stellar-ingest" },
+    { "path": "packages/storage-postgres" },
+    { "path": "packages/reports" },
+    { "path": "packages/cli" }
+  ]
+}

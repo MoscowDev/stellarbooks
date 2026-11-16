@@ -11,6 +11,7 @@ set of tracked accounts and contracts into an append-only, per-asset-balanced, d
 It then produces reports and proves that its balances match the chain.
 
 **What it does:**
+
 1. **Ingest:** reads ledger data (`LedgerCloseMeta` XDR) from a pluggable `LedgerSource` (ADR-0003).
 2. **Derive:** turns transactions into normalized **economic events** (payment, path payment, fee,
    fee refund, account created/merged, claimable balance created/claimed/clawed back, LP
@@ -69,32 +70,34 @@ nothing at runtime.
 ## 4. Data model
 
 **Core types (TypeScript):**
+
 - `AssetId`: `native` | `classic:CODE:ISSUER` | `pool:<hex>` | `sep41:<C…>`, plus `scale`.
 - `Amount { asset: AssetId; units: bigint }`.
 - `Account { code, name, type: asset|liability|equity|income|expense, parent?, tags }`, with system
   accounts `Conversion`, `Suspense`, `Fees:Network`, `Equity:RetainedEarnings`.
 - `EconomicEvent`: a discriminated union with `source: { network, ledger, closeTime, txHash,
-  feeBumpHash?, opIndex?, eventIndex? }`, `subject` (the tracked account plus muxed id), memo,
+feeBumpHash?, opIndex?, eventIndex? }`, `subject` (the tracked account plus muxed id), memo,
   counterparty, and amounts.
 - `JournalEntry { postingKey, bookId, date, ledger, description, lines: JournalLine[], reverses?,
-  ruleId, ruleSetVersion, sourceRef, hash }` and `JournalLine { account, amount: Amount, memo?,
-  counterparty?, tags }`.
+ruleId, ruleSetVersion, sourceRef, hash }` and `JournalLine { account, amount: Amount, memo?,
+counterparty?, tags }`.
 - `PostingKey`: a canonical string built from network, ledger, tx hash, op index, event index, rule
   ID and rule-set version (ADR-0006, Q-022).
 
 **PostgreSQL schema (v1):**
-| Table | Purpose | Integrity |
-|---|---|---|
-| `book` | one set of books (tracked accounts, network, functional currency) | |
-| `ledger_account` | chart of accounts per book | unique (book, code) |
-| `asset` | asset registry, with scale and provenance | unique id |
-| `economic_event` | normalized events (audit trail of derivation) | unique source key; append-only |
-| `journal_entry` | header | unique `posting_key`; append-only; `reverses_entry_id` FK |
-| `journal_line` | lines, `numeric(39,0)` signed amount | CHECK ≠ 0; deferred balance trigger; append-only |
-| `source_checkpoint` | last fully processed ledger per (book, source) | |
-| `price_quote` | valuation inputs with provenance | append-only |
-| `period` | open/closed periods; posting into closed period rejected | |
-| `reconciliation_run` | results of proofs (expected, actual, diff per asset) | append-only |
+
+| Table                | Purpose                                                           | Integrity                                                 |
+| -------------------- | ----------------------------------------------------------------- | --------------------------------------------------------- |
+| `book`               | one set of books (tracked accounts, network, functional currency) |                                                           |
+| `ledger_account`     | chart of accounts per book                                        | unique (book, code)                                       |
+| `asset`              | asset registry, with scale and provenance                         | unique id                                                 |
+| `economic_event`     | normalized events (audit trail of derivation)                     | unique source key; append-only                            |
+| `journal_entry`      | header                                                            | unique `posting_key`; append-only; `reverses_entry_id` FK |
+| `journal_line`       | lines, `numeric(39,0)` signed amount                              | CHECK ≠ 0; deferred balance trigger; append-only          |
+| `source_checkpoint`  | last fully processed ledger per (book, source)                    |                                                           |
+| `price_quote`        | valuation inputs with provenance                                  | append-only                                               |
+| `period`             | open/closed periods; posting into closed period rejected          |                                                           |
+| `reconciliation_run` | results of proofs (expected, actual, diff per asset)              | append-only                                               |
 
 **Roles:** `stellarbooks_owner` (migrations) and `stellarbooks_app` (SELECT/INSERT only on
 append-only tables).
@@ -126,6 +129,7 @@ postEntries(repo, entries): PostResult   // idempotent
 // reports
 generalLedger | accountStatement | balanceSnapshot | closePeriod | toCsv | toJson
 ```
+
 Every exported symbol carries TSDoc, and TypeDoc fails the build on undocumented exports.
 
 ## 6. Testing strategy
@@ -157,19 +161,19 @@ Every exported symbol carries TSDoc, and TypeDoc fails the build on undocumented
 Each milestone ends with: tests, lint and typecheck green; docs updated; a conventional commit; and a
 status report to the maintainer.
 
-| # | Milestone | Key deliverables |
-|---|---|---|
-| M0 | Scaffolding | workspace, tsconfig, lint/format, vitest, CI, LICENSE, CONTRIBUTING, CoC, SECURITY, CHANGELOG, templates, README skeleton, doc skeletons |
-| M1 | Core domain | Amount/AssetId, CoA + templates, JournalEntry validation, posting key, reversal, rules engine, property tests, DOMAIN-MODEL.md |
-| M2 | Fixtures | `tools/fixture-gen`, testnet capture of every operation type, fixture format doc |
-| M3 | Stellar ingest (classic) | LedgerSource (fixture, RPC), XDR decode, meta deltas, classifiers incl. fees/fee-bump/failed/sponsorship/muxed/memo; golden tests; STELLAR-MAPPING.md, ACCOUNTING-RULES.md |
-| M4 | Soroban | SAC + SEP-41 event decoding (pre/post P23 formats), CAP-67 cross-check, fixtures |
-| M5 | Storage | migrations, roles, triggers, repository, idempotent posting, checkpoints, retries; integration tests |
-| M6 | Reports + period close | GL, TB, statement, snapshot, close, CSV/JSON; golden report tests |
-| M7 | Reconciliation | proof at ledger L, persisted runs, CLI command |
-| M8 | Valuation | PriceSource interface, provenance, manual/CSV price source; no hardcoded rates |
-| M9 | CLI + examples | `stellarbooks` CLI, three runnable examples |
-| M10 | Docs + Wave readiness | ARCHITECTURE, API reference, ROADMAP, issues-backlog (30-50), final report |
+| #   | Milestone                | Key deliverables                                                                                                                                                           |
+| --- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M0  | Scaffolding              | workspace, tsconfig, lint/format, vitest, CI, LICENSE, CONTRIBUTING, CoC, SECURITY, CHANGELOG, templates, README skeleton, doc skeletons                                   |
+| M1  | Core domain              | Amount/AssetId, CoA + templates, JournalEntry validation, posting key, reversal, rules engine, property tests, DOMAIN-MODEL.md                                             |
+| M2  | Fixtures                 | `tools/fixture-gen`, testnet capture of every operation type, fixture format doc                                                                                           |
+| M3  | Stellar ingest (classic) | LedgerSource (fixture, RPC), XDR decode, meta deltas, classifiers incl. fees/fee-bump/failed/sponsorship/muxed/memo; golden tests; STELLAR-MAPPING.md, ACCOUNTING-RULES.md |
+| M4  | Soroban                  | SAC + SEP-41 event decoding (pre/post P23 formats), CAP-67 cross-check, fixtures                                                                                           |
+| M5  | Storage                  | migrations, roles, triggers, repository, idempotent posting, checkpoints, retries; integration tests                                                                       |
+| M6  | Reports + period close   | GL, TB, statement, snapshot, close, CSV/JSON; golden report tests                                                                                                          |
+| M7  | Reconciliation           | proof at ledger L, persisted runs, CLI command                                                                                                                             |
+| M8  | Valuation                | PriceSource interface, provenance, manual/CSV price source; no hardcoded rates                                                                                             |
+| M9  | CLI + examples           | `stellarbooks` CLI, three runnable examples                                                                                                                                |
+| M10 | Docs + Wave readiness    | ARCHITECTURE, API reference, ROADMAP, issues-backlog (30-50), final report                                                                                                 |
 
 ## 8. Known limitations (planned to be stated in the README)
 
