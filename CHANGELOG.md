@@ -8,6 +8,17 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- M1 `@stellarbooks/core`:
+  - **Amounts and assets:** exact bigint amounts and canonical asset IDs.
+  - **Chart of accounts:** with validated system accounts.
+  - **Economic events:** six event kinds with validation.
+  - **Journal entries:** per-asset balanced, with canonical JSON.
+  - **Keys:** source and posting keys (ADR-0010).
+  - **Reversals:** reversing entries.
+  - **Mapping:** first-match rules engine with `extendRuleSet`.
+  - **Templates:** freelancer, merchant and payroll.
+  - **Balances:** balance aggregation.
+  - **Tests:** unit tests and fast-check property tests (balance, reversal netting, deterministic and order-independent mapping, template coverage).
 - Phase 0 research notes (`docs/research/`), prior-art review, ADRs 0001–0008 and the Phase 1 plan.
 - M0 scaffolding:
   - **Tooling:** a pnpm workspace with five package skeletons, strict TypeScript 6.0 config, ESLint

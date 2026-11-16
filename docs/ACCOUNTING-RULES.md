@@ -68,3 +68,34 @@ mapping code and its golden fixtures must match it, and a change to either must 
 | `mint`                  | TBD             | TBD     |
 | `burn`                  | TBD             | TBD     |
 | `clawback`              | TBD             | TBD     |
+
+## Template mapping (M1)
+
+How the built-in templates (`standardRules`) turn each economic event into lines. Signs: `+` is a
+debit and `−` is a credit. **W** is the wallets account (1100) with the wallet sub-ledger. The first
+matching rule wins, in the order listed. Templates differ only in the policy accounts:
+
+| Template   | Inflow (`transfer-in`)         | Outflow (`transfer-out`, escrow `release`) | Write-off |
+| ---------- | ------------------------------ | ------------------------------------------ | --------- |
+| freelancer | 4100 Client income             | 6100 Business expenses                     | 6950      |
+| merchant   | 4100 Sales                     | 6100 Supplier payments and refunds         | 6950      |
+| payroll    | 3100 Employer funding (equity) | 6100 Salaries and wages                    | 6950      |
+
+| Rule id              | Event                                                                               | Lines                                                                                                 |
+| -------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `fee`                | `fee`                                                                               | + 6900 Network fees, − W                                                                              |
+| `fee-refund`         | `fee_refund`                                                                        | + W, − 6900                                                                                           |
+| `transfer-internal`  | `transfer` whose counterparty is a tracked wallet (including itself: self-payments) | in: + W, − 1190; out: + 1190, − W                                                                     |
+| `transfer-write-off` | `transfer` out via `clawback`, `contract_clawback` or `contract_burn`               | + write-off, − W                                                                                      |
+| `transfer-in`        | other incoming `transfer`                                                           | + W, − inflow                                                                                         |
+| `transfer-out`       | other outgoing `transfer`                                                           | + outflow, − W                                                                                        |
+| `exchange`           | `exchange`                                                                          | per given asset: − W, + 3900 Conversion; per received asset: + W, − 3900                              |
+| `escrow`             | `escrow` lock / reclaim / release / clawed_back                                     | lock: + 1150, − W; reclaim: + W, − 1150; release: + outflow, − 1150; clawed_back: + write-off, − 1150 |
+| `unclassified`       | `unclassified_change`                                                               | + W by the signed delta, − 2990 Suspense                                                              |
+
+These are **defaults, not advice**. For example, a payroll wallet receiving money from an employer's
+treasury is booked as equity funding. If your treasury is a tracked wallet, the transfer is internal
+instead. Override with `extendRuleSet`.
+
+The mapping from Stellar operations to economic events (the "Journal entries" column above) is
+completed in M3 and M4, using golden fixtures.
