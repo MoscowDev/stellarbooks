@@ -108,6 +108,13 @@ export {
 } from './templates.js';
 export { computeBalances, type BalanceRow, type BalanceOptions } from './balances.js';
 export {
+  reconcileBalances,
+  type LedgerBalanceSnapshot,
+  type ObservedBalance,
+  type ReconciliationReport,
+  type ReconciliationRow,
+} from './reconciliation.js';
+export {
   compareSourcePositions,
   validateSourcePosition,
   type SourcePosition,

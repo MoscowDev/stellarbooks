@@ -31,3 +31,11 @@ See [docs/DOMAIN-MODEL.md](../../docs/DOMAIN-MODEL.md) and
 accounting or tax advice.
 
 Licensed under MIT. See [LICENSE](../../LICENSE).
+
+## Offline reconciliation
+
+Call `reconcileBalances(entries, walletAccount, snapshot)` with one book's full journal
+and a snapshot from the same network. Include opening postings and explicit zero
+observations for positions with no balance. The report compares minor units per wallet
+and asset and identifies missing observations. Snapshot provenance and journal
+completeness are supplied by the caller.
