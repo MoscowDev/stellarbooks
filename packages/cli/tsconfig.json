@@ -5,5 +5,11 @@
     "outDir": "dist",
     "types": ["node"]
   },
+  "references": [
+    { "path": "../core" },
+    { "path": "../stellar-ingest" },
+    { "path": "../storage-postgres" },
+    { "path": "../reports" }
+  ],
   "include": ["src/**/*.ts"]
 }

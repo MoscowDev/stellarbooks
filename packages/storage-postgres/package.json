@@ -13,9 +13,17 @@
   },
   "files": [
     "dist",
+    "src/migrations",
     "README.md"
   ],
   "engines": {
     "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@stellarbooks/core": "workspace:*",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "@types/pg": "8.23.1"
   }
 }

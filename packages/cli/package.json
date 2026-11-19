@@ -4,6 +4,9 @@
   "description": "Command-line interface for StellarBooks.",
   "license": "MIT",
   "type": "module",
+  "bin": {
+    "stellarbooks": "./dist/bin.js"
+  },
   "sideEffects": false,
   "exports": {
     ".": {
@@ -17,5 +20,11 @@
   ],
   "engines": {
     "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@stellarbooks/core": "workspace:*",
+    "@stellarbooks/reports": "workspace:*",
+    "@stellarbooks/stellar-ingest": "workspace:*",
+    "@stellarbooks/storage-postgres": "workspace:*"
   }
 }

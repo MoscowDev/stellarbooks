@@ -1,5 +1,6 @@
 packages:
   - packages/*
+  - tools/fixture-gen
 
 # Settings (pnpm reads these from this file; see https://pnpm.io/settings, retrieved 2026-11-16)
 saveExact: true

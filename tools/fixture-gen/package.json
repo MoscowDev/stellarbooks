@@ -1,0 +1,14 @@
+{
+  "name": "@stellarbooks/fixture-gen",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dev-only fixture capture and generator for StellarBooks testnet transactions",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "capture": "node dist/generate.js"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "17.4.0"
+  }
+}
