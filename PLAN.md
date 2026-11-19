@@ -1,8 +1,8 @@
-# StellarBooks: Plan (Phase 1, awaiting approval)
+# StellarBooks implementation plan
 
-Working title. Status: **draft for maintainer approval**. Nothing in Phase 2 starts until this is
-approved. Research behind every decision is in `docs/research/`, the decisions are in `docs/adr/`
-(all "Proposed"), and unresolved items are in `docs/OPEN-QUESTIONS.md`.
+The maintainer approved this plan on 2026-11-16. This document records the target
+scope and original milestones. See the [roadmap](docs/ROADMAP.md) for current
+priorities and [open questions](docs/OPEN-QUESTIONS.md) for outstanding work.
 
 ## 1. Scope
 

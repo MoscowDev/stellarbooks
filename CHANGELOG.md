@@ -8,6 +8,13 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- A runnable offline example that verifies a captured XLM payment and fee and demonstrates a custom rule.
+- PostgreSQL journal posting with transactional checkpoints, period cutoffs, sealed lines, and
+  source and reversal persistence. Integration checks passed on PostgreSQL 15 and 18.
+- General ledger, trial balance, statements, snapshots, and CSV and JSON exports.
+- Offline reconciliation using supplied snapshots and exact valuations using manual price quotes.
+- A prioritized Stellar Wave submission guide and first-Wave issue shortlist.
+
 - M1 `@stellarbooks/core`:
   - **Amounts and assets:** exact bigint amounts and canonical asset IDs.
   - **Chart of accounts:** with validated system accounts.

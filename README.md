@@ -1,64 +1,58 @@
-# StellarBooks (working title)
+# StellarBooks
 
-StellarBooks is an open-source TypeScript library, currently in development. It turns activity on
-the [Stellar](https://stellar.org) network into double-entry accounting records that you can audit.
-It is meant to be embedded in other Stellar projects, such as payroll, invoice finance, remittance,
-streaming payments and merchant apps.
+StellarBooks is a pre-alpha TypeScript library for recording Stellar activity in a
+double-entry journal. It is designed for developers building payroll, remittance,
+invoice finance, and merchant applications on Stellar.
 
-> **Status: pre-alpha, not usable yet.** The repository holds the research, the plan and the
-> scaffolding. No functionality has been implemented. See [PLAN.md](PLAN.md) for milestones and
-> [CHANGELOG.md](CHANGELOG.md) for progress.
+## Quick start
 
-## What it will do
-
-- Read ledger data for the accounts and contracts you track (read-only, with no secret keys), and
-  turn it into normalized economic events: payments, path payments, fees, claimable balances,
-  liquidity pools, clawbacks, Soroban token transfers and more.
-- Map those events to journal entries using configurable rules and chart-of-accounts templates.
-- Store them in an append-only journal in PostgreSQL. Every entry balances in every asset. Posting is
-  idempotent and deterministic, and corrections are made only with reversing entries.
-- Produce a general ledger, trial balance, account statements, balance snapshots and period close,
-  exported as CSV or JSON.
-- Prove that computed balances equal the balances on chain at a given ledger.
-
-## Who it is for
-
-Developers building on Stellar who need books derived from chain activity, and who want to check how
-each figure was produced.
-
-## Honest limitations
-
-- **Not a tax tool and not legal advice.** Measurement policy (for example IFRS or US GAAP treatment
-  of crypto assets), tax rules and cost-basis choices remain with the user and their advisers.
-- **Not audited or certified.** No third party has reviewed this software.
-- **Full history needs a suitable data source.** By default, Stellar RPC keeps about 7 days of
-  transactions. A complete backfill needs an RPC node backed by a data lake. See
-  [ADR-0003](docs/adr/0003-ingestion-source.md).
-- **Other projects in this space.** Other Stellar bookkeeping and accounting projects exist. See
-  [docs/prior-art.md](docs/prior-art.md).
-
-## Repository layout
-
-| Path                        | Contents                                                                                                                                                   |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/core`             | Pure domain logic, with no I/O                                                                                                                             |
-| `packages/stellar-ingest`   | Stellar ledger data turned into economic events                                                                                                            |
-| `packages/storage-postgres` | Migrations and repositories                                                                                                                                |
-| `packages/reports`          | Reports and exports                                                                                                                                        |
-| `packages/cli`              | Command-line interface                                                                                                                                     |
-| `docs/`                     | Architecture, domain model, accounting rules, Stellar mapping, [ADRs](docs/adr), [research notes](docs/research), [open questions](docs/OPEN-QUESTIONS.md) |
-
-## Development
-
-Requires Node.js 22.13 or later and pnpm 11.
+Use Node.js 22.13 or later and the pnpm version pinned in `package.json`. From the
+repository root:
 
 ```sh
-pnpm install
-pnpm run check   # typecheck, lint, format check, tests, API docs
+pnpm install --frozen-lockfile
+pnpm run build
+node examples/raw-payment.mjs
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+The offline example reads committed testnet ledger **5796891** and verifies a
+**10,000,000-stroop XLM payment** and **100-stroop fee** against the transaction's
+balance changes. It prints separate journal entries and a trial balance. The balance
+comparison uses a synthetic opening and closing balance for the selected transaction.
 
-## Licence
+- Run `node examples/raw-payment.mjs --custom-rule` to apply a supplier-specific rule.
+- Run `node packages/cli/dist/bin.js demo --mismatch` to see a synthetic one-stroop
+  reconciliation discrepancy and exit status 1.
 
-MIT. See [LICENSE](LICENSE).
+## What works today
+
+| Area                                                             | Available                                                                                                                                             |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Core](packages/core/README.md)                                  | Bigint amounts, per-asset journal validation, deterministic posting keys, reversals, and configurable chart templates and rules                       |
+| [Ingestion](packages/stellar-ingest/README.md)                   | Raw ledger header inspection, envelope-to-result matching, bounded RPC pagination, and decoding of one supported native-payment transaction at a time |
+| [PostgreSQL](packages/storage-postgres/README.md)                | Journal posting, replay, transactional checkpoints, period cutoffs, sealed lines, and source and reversal round-trips                                 |
+| [Reports](packages/reports/README.md)                            | General ledger, trial balance, account statements, balance snapshots, CSV and JSON exports, and exact valuation with manual quotes                    |
+| [Reconciliation](packages/core/README.md#offline-reconciliation) | Exact comparison against a supplied ledger balance snapshot with provenance                                                                           |
+
+## Current limits
+
+Whole-ledger classic and Soroban decoding, independent same-ledger reconciliation,
+closing journal entries, persisted reconciliation and quotes, and the operational CLI
+are in progress. Full historical backfills also require a provider with suitable
+retention. The library is read-only with respect to Stellar and handles public ledger data.
+StellarBooks is unaudited and provides no tax or legal advice.
+
+## Documentation and verification
+
+- **Stellar Wave reviewers:** start with the [submission notes](docs/WAVE-SUBMISSION.md).
+- **Contributors:** see the [prioritized roadmap](docs/ROADMAP.md), [open questions](docs/OPEN-QUESTIONS.md),
+  and [contribution guide](CONTRIBUTING.md).
+- **Integrators:** see the [architecture](docs/ARCHITECTURE.md), [domain model](docs/DOMAIN-MODEL.md),
+  [accounting rules](docs/ACCOUNTING-RULES.md), and [Stellar mapping](docs/STELLAR-MAPPING.md).
+
+Run `pnpm run check` for typechecking, lint, formatting, tests, and generated API
+documentation in `docs/api/`. Run `pnpm run audit` for the dependency audit. The
+[PostgreSQL package guide](packages/storage-postgres/README.md) explains how to enable the
+database integration test.
+
+MIT licensed. See [LICENSE](LICENSE).

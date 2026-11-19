@@ -1,7 +1,8 @@
 # Architecture
 
-> **Status:** skeleton (M0). This describes the approved design in [PLAN.md](../PLAN.md), and each
-> section will be updated as its milestone lands.
+The offline workflow below runs against captured ledger data. The pipeline diagram
+describes the target architecture from the [approved plan](../PLAN.md). See the
+[roadmap](ROADMAP.md) for implementation status.
 
 ## Pipeline
 
@@ -23,7 +24,7 @@ LedgerSource ──► stellar-ingest ──► EconomicEvent[] ──► core r
 | ------------------ | ----------------------------------------------------------------- | ----------------------------------------------- |
 | `core`             | Domain types, validation, rules, report math, reconciliation math | nothing at runtime (enforced by lint and tests) |
 | `stellar-ingest`   | Data sources, XDR decoding, event extraction                      | `core`, `@stellar/stellar-sdk`                  |
-| `storage-postgres` | Migrations, repositories, idempotent posting                      | `core`, `pg`, `node-pg-migrate`                 |
+| `storage-postgres` | SQL migrations, repositories, idempotent posting                  | `core`, `pg`                                    |
 | `reports`          | Report builders, exporters                                        | `core`                                          |
 | `cli`              | Operator commands                                                 | all of the above                                |
 
@@ -43,3 +44,9 @@ LedgerSource ──► stellar-ingest ──► EconomicEvent[] ──► core r
 The same ledger data and the same rule-set version always produce byte-identical journal entries,
 with the same posting keys and hashes. Ingestion can be replayed out of order, and duplicates are
 no-ops.
+
+## Offline fixture workflow
+
+The [raw payment example](../examples/raw-payment.mjs) reads committed XDR, matches
+envelopes to results, verifies and classifies one payment and fee, maps events through
+the freelancer template, and runs reports and a synthetic balance comparison.
