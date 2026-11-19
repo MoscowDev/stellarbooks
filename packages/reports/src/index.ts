@@ -1,9 +1,21 @@
 /**
- * StellarBooks reports: general ledger, trial balance, account statement, balance snapshot, period close, CSV and JSON export.
- *
- * This package is scaffolded and has no public API yet. Implementation is scheduled for
- * milestone M6 in PLAN.md (tracked in docs/OPEN-QUESTIONS.md as Q-005).
+ * Reports over the StellarBooks journal.
  *
  * @packageDocumentation
  */
-export {};
+export {
+  generalLedger,
+  type GeneralLedgerReport,
+  type GeneralLedgerRow,
+} from './general-ledger.js';
+export { balanceSnapshot, trialBalance, type TrialBalanceRow } from './balances.js';
+export { accountStatement, type AccountStatement, type StatementBalance } from './statement.js';
+export { toCsv, toJson } from './export.js';
+export {
+  valueAmount,
+  manualPriceSource,
+  type PriceQuote,
+  type PriceSource,
+  type Valuation,
+  type ValuationRounding,
+} from './valuation.js';
