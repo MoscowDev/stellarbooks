@@ -1,9 +1,24 @@
 /**
  * Reads Stellar ledger data (LedgerCloseMeta XDR) and normalizes it into economic events for StellarBooks.
  *
- * This package is scaffolded and has no public API yet. Implementation is scheduled for
- * milestone M3 in PLAN.md (tracked in docs/OPEN-QUESTIONS.md as Q-005).
- *
  * @packageDocumentation
  */
-export {};
+export {
+  isTracked,
+  type BalanceDeltaRecord,
+  type ContractEventRecord,
+  type LedgerCloseMetaRecord,
+  type LedgerSource,
+  type OperationRecord,
+  type TrackedSet,
+  type TransactionRecord,
+} from './types.js';
+
+export { FixtureLedgerSource } from './sources/fixture-source.js';
+export { RpcLedgerSource, type RpcLedgerSourceOptions } from './sources/rpc-source.js';
+export { extractEvents } from './extractor.js';
+export { extractLedgerCloseMetaRecord, normalizeAsset } from './deltas/meta-deltas.js';
+export { inspectLedgerHeader, type LedgerHeaderSummary } from './deltas/ledger-header.js';
+export { matchLedgerTransactions, type LedgerTransaction } from './deltas/ledger-transactions.js';
+export { decodeNativePayment } from './deltas/native-payment.js';
+export { classifyTransaction } from './classifiers/classifier.js';
