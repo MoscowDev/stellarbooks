@@ -12,7 +12,6 @@ versions are pinned exactly.
 | @stellar/stellar-sdk | 17.4.0 | Apache-2.0 | stellar-ingest | Official SDK; XDR for Protocol 30; `rpc.Server`. `@stellar/stellar-base` is deprecated and must not be added. |
 | pg | 8.23.1 | MIT | storage-postgres | Mature, widely used; returns int8/numeric as strings (exact). Wrapped behind an internal executor interface. |
 | @types/pg | 8.23.1 | MIT | dev | Types for pg. |
-| node-pg-migrate | 9.0.0 | MIT | storage-postgres | Raw-SQL migrations, pg-compatible. |
 | vitest | 5.1.0 | MIT | dev | Test runner with native ESM/TS support. |
 | fast-check | 4.10.2 | MIT | dev | Property-based tests. |
 | typedoc | 0.28.20 | Apache-2.0 | dev | API reference from TSDoc. |
@@ -22,6 +21,7 @@ The linter, formatter, CLI argument parser and CSV writer will be chosen at the 
 after reading their READMEs and types, and recorded here as an amendment before acceptance.
 
 ## Rejected
+- `node-pg-migrate` 9.0.0: removed on 2026-11-18. The existing runner uses pg and a SQL file, and the unused migration dependency brought in an affected version of glob.
 - `postgres` (porsager) 4.1.1: Unlicense, a single maintainer, and a fresh major (2026-10-29) that
   changed bigint parameter typing.
 - `@stellar/stellar-base`: deprecated, and folded into the SDK.

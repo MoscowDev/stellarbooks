@@ -203,3 +203,15 @@ so that a duplicate run cannot double-post even if locking is misconfigured.
 5. Performance of row-level deferred constraint triggers on large batches (e.g. a full ledger). Benchmark per-line versus per-header triggers.
 6. Whether managed Postgres providers in scope allow creating separate owner and app roles, and whether they run PgBouncer in transaction mode. That setup breaks session-level advisory locks and `SET` state.
 7. Decimal handling for Soroban tokens with non-7 decimals. Where is `decimals` sourced from (token contract metadata)? This affects reporting, not storage.
+## Atomic posting follow-up (2026-11-18)
+
+The [PostgreSQL 15 INSERT reference](https://www.postgresql.org/docs/15/sql-insert.html)
+documents conditional conflict updates. Use a condition so a checkpoint can only advance.
+Write it in the same transaction as journal entries so deferred integrity checks can roll
+back both. Serialize cooperating writers for a book with a transaction-scoped row lock
+as described in the locking section above.
+Period close follow-up, 2026-11-18. The [PostgreSQL 15 isolation documentation](https://www.postgresql.org/docs/15/transaction-iso.html#XACT-READ-COMMITTED) specifies that a row lock waits for the competing transaction and that the next statement in Read Committed sees newly committed rows. Posting and closing acquire the same book row lock before checking the cutoff.
+Journal sealing, 2026-11-19. The [PostgreSQL 15 system-information reference](https://www.postgresql.org/docs/15/functions-info.html)
+documents `pg_current_xact_id()` and its 64-bit result. Stamp journal headers on insert and
+allow line insertion only during the header's transaction. Legacy headers are sealed
+without a stamp. A deferred header constraint catches an empty or one-line entry.
