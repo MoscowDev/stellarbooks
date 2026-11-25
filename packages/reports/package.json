@@ -3,6 +3,15 @@
   "version": "0.0.0",
   "description": "StellarBooks reports: general ledger, trial balance, account statement, balance snapshot, period close, CSV and JSON export.",
   "license": "MIT",
+  "homepage": "https://github.com/MoscowDev/stellarbooks/tree/main/packages/reports#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoscowDev/stellarbooks.git",
+    "directory": "packages/reports"
+  },
+  "bugs": {
+    "url": "https://github.com/MoscowDev/stellarbooks/issues"
+  },
   "type": "module",
   "sideEffects": false,
   "exports": {

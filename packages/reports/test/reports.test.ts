@@ -63,4 +63,21 @@ describe('journal reports', () => {
     expect(toCsv(rows, ['note', 'units'])).toBe('note,units\r\n"a,""b""\nc",9007199254740993\r\n');
     expect(toJson(rows)).toBe('[{"units":"9007199254740993","note":"a,\\"b\\"\\nc"}]');
   });
+
+  it('neutralizes formula-like text cells but keeps numbers exact', () => {
+    const rows = [
+      { memo: '=HYPERLINK("http://x","y")', units: -5n, text: '-100' },
+      { memo: '@SUM(A1)', units: 0n, text: '-1+2' },
+      { memo: '＝1+1', units: 1n, text: '+3.25' },
+      { memo: '\tcmd', units: 2n, text: 'plain' },
+    ];
+    expect(toCsv(rows, ['memo', 'units', 'text'])).toBe(
+      'memo,units,text\r\n' +
+        '"\'=HYPERLINK(""http://x"",""y"")",-5,-100\r\n' +
+        "'@SUM(A1),0,'-1+2\r\n" +
+        "'＝1+1,1,+3.25\r\n" +
+        "'\tcmd,2,plain\r\n",
+    );
+    expect(toCsv([{ memo: '=1+1' }], ['memo'], { escapeFormulas: false })).toBe('memo\r\n=1+1\r\n');
+  });
 });

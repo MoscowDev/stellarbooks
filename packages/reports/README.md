@@ -12,6 +12,12 @@ per-asset opening and closing balances. Include all earlier entries to compute o
 `toCsv(rows, columns)` with explicit column order. CSV field values support text, bigint,
 booleans, and empty values.
 
+By default, `toCsv` prefixes text cells that start with `=`, `+`, `-`, `@`, a tab, a line break, or
+a full-width form of those signs with `'`, so a spreadsheet does not run attacker-supplied text such
+as a Stellar memo as a formula. Numbers, including negative bigint amounts and plain numeric text,
+are left unchanged. Pass `{ escapeFormulas: false }` when a program, not a spreadsheet, reads the
+file. See [report export research](../../docs/research/report-exports.md#csv-formula-injection).
+
 Use `valueAmount(amount, quoteAsset, asOf, source, rounding)` with a caller-provided
 price source. Quote ratios express quote minor units per base minor unit. Choose
 `toward-zero` or `half-away-from-zero` rounding. The valuation contains its original

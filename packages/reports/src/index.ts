@@ -10,7 +10,7 @@ export {
 } from './general-ledger.js';
 export { balanceSnapshot, trialBalance, type TrialBalanceRow } from './balances.js';
 export { accountStatement, type AccountStatement, type StatementBalance } from './statement.js';
-export { toCsv, toJson } from './export.js';
+export { toCsv, toJson, type CsvOptions } from './export.js';
 export {
   valueAmount,
   manualPriceSource,
