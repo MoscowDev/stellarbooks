@@ -2,6 +2,8 @@
 
 **Complexity** Medium
 
+**Status** Done (2026-11-25). `packages/stellar-ingest/test/rpc-source.testnet.test.ts` and the scheduled `.github/workflows/testnet.yml` job.
+
 ## Context
 
 This is part of the [StellarBooks roadmap](../docs/ROADMAP.md). The RPC test in `packages/stellar-ingest/test/rpc-source.test.ts` mocks `getLedgers`. Nothing checks the adapter against a real RPC.

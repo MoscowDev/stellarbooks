@@ -2,6 +2,8 @@
 
 **Complexity** Medium
 
+**Status** Partly done (2026-11-25). The decoder keeps all memo kinds and muxed addresses, and payments record the wallet-side `muxedId`. A captured muxed payment and journal round-trip are still needed.
+
 ## Context
 
 This is part of the [StellarBooks roadmap](../docs/ROADMAP.md). Retain the exact unsigned muxed ID through journal mapping.

@@ -2,6 +2,8 @@
 
 **Complexity** High
 
+**Status** Partly done (2026-11-25). `decodeLedger` pairs account and trustline changes, including creates and removals. Transfers and an account removal are asserted on a captured ledger; a captured trustline removal is still needed.
+
 ## Context
 
 This is part of the [StellarBooks roadmap](../docs/ROADMAP.md). Return exact before and after differences including creates and removals.

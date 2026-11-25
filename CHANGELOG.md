@@ -6,6 +6,28 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `decodeLedger` decodes every transaction in a ledger: fee payer (outer source for fee-bumps),
+  `feeCharged`, success, memo, operations, and account and trustline balance deltas with their
+  operation index. It checks that fee changes net to exactly `-feeCharged`.
+- `RpcLedgerSource` now decodes real ledgers. It takes a `networkPassphrase` option and checks it
+  against the server before reading.
+- An opt-in testnet test (`STELLARBOOKS_TESTNET_RPC_URL`) and a scheduled CI job that read recent
+  public ledgers and require every balance change to reach the journal.
+- Payment events record the tracked wallet's muxed ID.
+
+### Fixed
+
+- `claim_claimable_balance` no longer books a `release` for every unrelated tracked wallet. Claims
+  go to suspense until they can be matched to a lock (Q-042).
+- When both sides of a transfer are tracked, the two events now have distinct source positions, so
+  the second entry is no longer rejected as a duplicate.
+- Sponsored `create_account` with a 0 starting balance and merges of empty accounts no longer
+  produce invalid zero-amount events.
+- With complete deltas, the classifier compares amounts per wallet and asset, so an unexplained part
+  of a change reaches suspense instead of being hidden by another event in the same asset.
+
 ### Security
 
 - `toCsv` now neutralizes text cells that a spreadsheet could evaluate as formulas (for example a

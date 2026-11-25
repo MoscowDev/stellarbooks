@@ -26,19 +26,20 @@ comparison uses a synthetic opening and closing balance for the selected transac
 
 ## What works today
 
-| Area                                                             | Available                                                                                                                                             |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Core](packages/core/README.md)                                  | Bigint amounts, per-asset journal validation, deterministic posting keys, reversals, and configurable chart templates and rules                       |
-| [Ingestion](packages/stellar-ingest/README.md)                   | Raw ledger header inspection, envelope-to-result matching, bounded RPC pagination, and decoding of one supported native-payment transaction at a time |
-| [PostgreSQL](packages/storage-postgres/README.md)                | Journal posting, replay, transactional checkpoints, period cutoffs, sealed lines, and source and reversal round-trips                                 |
-| [Reports](packages/reports/README.md)                            | General ledger, trial balance, account statements, balance snapshots, CSV and JSON exports, and exact valuation with manual quotes                    |
-| [Reconciliation](packages/core/README.md#offline-reconciliation) | Exact comparison against a supplied ledger balance snapshot with provenance                                                                           |
+| Area                                                             | Available                                                                                                                                                                                                                                                                                                             |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Core](packages/core/README.md)                                  | Bigint amounts, per-asset journal validation, deterministic posting keys, reversals, and configurable chart templates and rules                                                                                                                                                                                       |
+| [Ingestion](packages/stellar-ingest/README.md)                   | Whole-ledger decoding from Stellar RPC: fees (including fee-bumps, failures and Soroban refunds), memos, muxed IDs, and account and trustline balance changes. Payments, account creation and merge, path payments to self, claimable-balance creation and clawbacks are classified; everything else reaches suspense |
+| [PostgreSQL](packages/storage-postgres/README.md)                | Journal posting, replay, transactional checkpoints, period cutoffs, sealed lines, and source and reversal round-trips                                                                                                                                                                                                 |
+| [Reports](packages/reports/README.md)                            | General ledger, trial balance, account statements, balance snapshots, CSV and JSON exports, and exact valuation with manual quotes                                                                                                                                                                                    |
+| [Reconciliation](packages/core/README.md#offline-reconciliation) | Exact comparison against a supplied ledger balance snapshot with provenance                                                                                                                                                                                                                                           |
 
 ## Current limits
 
-Whole-ledger classic and Soroban decoding, independent same-ledger reconciliation,
-closing journal entries, persisted reconciliation and quotes, and the operational CLI
-are in progress. Full historical backfills also require a provider with suitable
+Soroban contract events, offer fills, path payments to other accounts and claimable-balance
+claims are not classified yet: their balance changes are posted to a suspense account for review,
+not dropped. Independent same-ledger reconciliation, closing journal entries, persisted
+reconciliation and quotes, and the operational CLI are in progress. Full historical backfills also require a provider with suitable
 retention. The library is read-only with respect to Stellar and handles public ledger data.
 StellarBooks is unaudited and provides no tax or legal advice.
 

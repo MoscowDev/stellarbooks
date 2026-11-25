@@ -2,6 +2,8 @@
 
 **Complexity** High
 
+**Status** Done (2026-11-25). Normal, failed and fee-bump fees are asserted on captured ledger 5796891, and the decoder checks fee changes against `feeCharged` for every transaction.
+
 ## Context
 
 This is part of the [StellarBooks roadmap](../docs/ROADMAP.md). Produce one charged fee event for each tracked payer even on failure.

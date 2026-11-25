@@ -1,9 +1,11 @@
 # Stellar Wave submission
 
 StellarBooks helps Stellar apps record payments and network fees in a double-entry journal.
-The [quick start](../README.md#quick-start) runs against a committed testnet ledger offline.
-It checks one classic XLM payment and its fee against balance changes in the captured XDR,
-then prints journal entries and a trial balance. Its reconciliation uses synthetic balances.
+The [quick start](../README.md#quick-start) runs against a committed testnet ledger offline and
+prints journal entries and a trial balance; its reconciliation uses synthetic balances. The
+ingestion package decodes whole ledgers from Stellar RPC. A run over 200 live testnet ledgers
+(about 4,300 transactions) produced no mapping failures, and every wallet's journal total matched
+the decoded on-chain changes.
 
 ## Application summary
 
@@ -12,8 +14,10 @@ then prints journal entries and a trial balance. Its reconciliation uses synthet
 > reads a captured testnet ledger, verifies one XLM payment and its fee against XDR account
 > changes, and produces balanced journal entries and a trial balance. It also demonstrates
 > customizing an accounting rule. The reconciliation example uses synthetic balances.
-> Whole-ledger classic and Soroban ingestion is in development. Our first Wave would focus on
-> fixture coverage, pagination checks, and examples that make the library easier to adopt.
+> It decodes whole ledgers from Stellar RPC; activity it cannot classify yet, such as Soroban
+> token events and offer fills, is posted to a suspense account rather than dropped. Our first
+> Wave would focus on fixture coverage, pagination checks, and examples that make the library
+> easier to adopt.
 
 ## First Wave
 
@@ -36,8 +40,8 @@ and reporting PRs during the Wave. One maintainer can cover both areas if availa
 
 ## Verification and scope
 
-The captured demonstration covers one transaction. Whole-ledger ingestion, broader operation
-coverage, and independent testnet reconciliation remain in the [roadmap](ROADMAP.md).
+Exact assertions cover one captured ledger. Soroban event decoding, classifiers for offers and
+claims, and independent testnet balance reconciliation remain in the [roadmap](ROADMAP.md).
 Review the [open questions](OPEN-QUESTIONS.md) for the dependency audit status before submission.
 
 The 2026-11-19 verification recorded 160 passing offline tests, one skipped database case in the offline run, and successful PostgreSQL 15 and 18 integration runs in the storage pass. The dependency audit passed under the configured policy on that date. Rerun checks against the submission revision.

@@ -2,6 +2,8 @@
 
 **Complexity** High
 
+**Status** Done (2026-11-25). `decodeLedger` keeps apply order; `ledger-decoder.test.ts` compares every hash of captured ledger 5796891 with the result order.
+
 ## Context
 
 This is part of the [StellarBooks roadmap](../docs/ROADMAP.md). Preserve apply order for multi-transaction ledgers.
