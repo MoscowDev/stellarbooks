@@ -21,4 +21,5 @@ export { extractLedgerCloseMetaRecord, normalizeAsset } from './deltas/meta-delt
 export { inspectLedgerHeader, type LedgerHeaderSummary } from './deltas/ledger-header.js';
 export { matchLedgerTransactions, type LedgerTransaction } from './deltas/ledger-transactions.js';
 export { decodeNativePayment } from './deltas/native-payment.js';
+export { decodeLedger } from './deltas/ledger-decoder.js';
 export { classifyTransaction } from './classifiers/classifier.js';

@@ -3,11 +3,13 @@
  *
  * @module
  */
+import { MuxedAccount } from '@stellar/stellar-sdk';
 import { readText, readUnits } from '../deltas/normalized-fields.js';
 import {
   amount,
   assetId,
   NATIVE_ASSET,
+  type AssetId,
   type EconomicEvent,
   type SourcePosition,
 } from '@stellarbooks/core';
@@ -19,6 +21,19 @@ interface ClassifyContext {
   readonly ledger: number;
   readonly closeTime: string;
   readonly tracked: TrackedSet;
+}
+
+/** The muxed ID of an `M...` address as `{ muxedId }`, or nothing for an absent value. */
+function muxedIdOf(address: unknown): { muxedId?: string } {
+  if (typeof address !== 'string' || !address.startsWith('M')) return {};
+  return { muxedId: MuxedAccount.fromAddress(address, '0').id() };
+}
+
+/** Deltas of one wallet, limited to one operation when the decoder recorded operation indexes. */
+function opDeltas(tx: TransactionRecord, wallet: string, opIndex: number) {
+  return tx.deltas.filter(
+    (d) => d.wallet === wallet && (d.opIndex === undefined || d.opIndex === opIndex),
+  );
 }
 
 /**
@@ -66,14 +81,14 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
         txHash: tx.txHash,
         stage: 'operation',
         opIndex: 0,
-        eventIndex: evIdx,
+        eventIndex: 2 * evIdx,
       };
 
       if (ev.type === 'transfer') {
         if (ev.to && isTracked(ctx.tracked, ev.to)) {
           events.push({
             kind: 'transfer',
-            source,
+            source: { ...source, eventIndex: 2 * evIdx + 1 },
             closeTime: ctx.closeTime,
             wallet: ev.to,
             direction: 'in',
@@ -149,6 +164,9 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
       opIndex: op.index,
       eventIndex: 0,
     };
+    // The sender and receiver sides of one transfer are separate facts with fixed indexes, so
+    // both can be posted when both wallets are tracked (ADR-0010).
+    const receiverSource: SourcePosition = { ...opSource, eventIndex: 1 };
     const detail = op.detail ?? {};
 
     switch (op.type) {
@@ -162,9 +180,10 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
         if (isTracked(ctx.tracked, dest)) {
           events.push({
             kind: 'transfer',
-            source: opSource,
+            source: receiverSource,
             closeTime: ctx.closeTime,
             wallet: dest,
+            ...muxedIdOf(detail['destinationMuxed']),
             direction: 'in',
             amount: amount(opAsset, units),
             counterparty: src,
@@ -179,6 +198,7 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
             source: opSource,
             closeTime: ctx.closeTime,
             wallet: src,
+            ...muxedIdOf(detail['sourceMuxed']),
             direction: 'out',
             amount: amount(opAsset, units),
             counterparty: dest,
@@ -194,7 +214,7 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
       case 'path_payment_strict_receive': {
         const src = op.sourceAccount ?? tx.feePayer;
         if (isTracked(ctx.tracked, src)) {
-          const walletDeltas = tx.deltas.filter((d) => d.wallet === src);
+          const walletDeltas = opDeltas(tx, src, op.index);
           const givenDeltas = walletDeltas.filter((d) => d.deltaUnits < 0n);
           const recDeltas = walletDeltas.filter((d) => d.deltaUnits > 0n);
 
@@ -222,11 +242,13 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
         const dest = readText(detail['destination'] ?? '');
         const src = op.sourceAccount ?? tx.feePayer;
         const units = readUnits(detail['startingBalance'] ?? detail['amount'] ?? '0');
+        // Sponsored accounts can start with 0 XLM; no value moves, so no transfer is booked.
+        if (units === 0n) break;
 
         if (isTracked(ctx.tracked, dest)) {
           events.push({
             kind: 'transfer',
-            source: opSource,
+            source: receiverSource,
             closeTime: ctx.closeTime,
             wallet: dest,
             direction: 'in',
@@ -257,17 +279,19 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
       case 'account_merge': {
         const dest = readText(detail['destination'] ?? '');
         const src = op.sourceAccount ?? tx.feePayer;
-        const destDelta = tx.deltas.find((d) => d.wallet === dest && d.asset === NATIVE_ASSET);
+        const destDelta = opDeltas(tx, dest, op.index).find((d) => d.asset === NATIVE_ASSET);
         const units = destDelta ? destDelta.deltaUnits : 0n;
+        // Merging an account that holds no XLM moves no value.
+        if (units <= 0n) break;
 
         if (isTracked(ctx.tracked, dest)) {
           events.push({
             kind: 'transfer',
-            source: opSource,
+            source: receiverSource,
             closeTime: ctx.closeTime,
             wallet: dest,
             direction: 'in',
-            amount: amount(NATIVE_ASSET, units > 0n ? units : 0n),
+            amount: amount(NATIVE_ASSET, units),
             counterparty: src,
             via: 'account_merge',
             ...(tx.memo ? { memo: tx.memo } : {}),
@@ -281,7 +305,7 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
             closeTime: ctx.closeTime,
             wallet: src,
             direction: 'out',
-            amount: amount(NATIVE_ASSET, units > 0n ? units : 0n),
+            amount: amount(NATIVE_ASSET, units),
             counterparty: dest,
             via: 'account_merge',
             ...(tx.memo ? { memo: tx.memo } : {}),
@@ -315,36 +339,17 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
       }
 
       case 'claim_claimable_balance': {
-        const claimant = op.sourceAccount ?? tx.feePayer;
-        const balanceId = readText(detail['balanceId'] ?? '');
-        const rawAsset = detail['asset'] ?? 'native';
-        const opAsset = normalizeAsset(rawAsset);
-        const units = readUnits(detail['amount'] ?? '0');
-
-        if (typeof ctx.tracked === 'object' && 'has' in ctx.tracked) {
-          for (const w of ctx.tracked) {
-            if (w !== claimant) {
-              events.push({
-                kind: 'escrow',
-                source: opSource,
-                closeTime: ctx.closeTime,
-                wallet: w,
-                action: 'release',
-                amount: amount(opAsset, units),
-                balanceId,
-                counterparty: claimant,
-                ...(tx.memo ? { memo: tx.memo } : {}),
-              });
-            }
-          }
-        }
+        // A ClaimableBalanceEntry does not record its creator, so a stateless classifier cannot
+        // tell a creator's `reclaim` from a `release` to someone else (Q-042). No escrow event is
+        // emitted here; the claimant's balance change falls through to `unclassified_change`
+        // (suspense) until claims are resolved against the book's own `lock` by balance ID.
         break;
       }
 
       case 'liquidity_pool_deposit': {
         const src = op.sourceAccount ?? tx.feePayer;
         if (isTracked(ctx.tracked, src)) {
-          const walletDeltas = tx.deltas.filter((d) => d.wallet === src);
+          const walletDeltas = opDeltas(tx, src, op.index);
           const given = walletDeltas
             .filter((d) => d.deltaUnits < 0n)
             .map((d) => amount(d.asset, -d.deltaUnits));
@@ -370,7 +375,7 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
       case 'liquidity_pool_withdraw': {
         const src = op.sourceAccount ?? tx.feePayer;
         if (isTracked(ctx.tracked, src)) {
-          const walletDeltas = tx.deltas.filter((d) => d.wallet === src);
+          const walletDeltas = opDeltas(tx, src, op.index);
           const given = walletDeltas
             .filter((d) => d.deltaUnits < 0n)
             .map((d) => amount(d.asset, -d.deltaUnits));
@@ -422,32 +427,78 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
     }
   });
 
-  // 4. Any remaining unclassified balance deltas on tracked wallets (ADR-0008)
+  // 4. Unexplained balance changes on tracked wallets go to suspense (ADR-0008)
+  const unclassified = (wallet: string, asset: AssetId, units: bigint, reason: string): void => {
+    events.push({
+      kind: 'unclassified_change',
+      source: {
+        network: ctx.network,
+        ledger: ctx.ledger,
+        txIndex: tx.txIndex,
+        txHash: tx.txHash,
+        stage: 'operation',
+        opIndex: 0,
+        eventIndex: events.length,
+      },
+      closeTime: ctx.closeTime,
+      wallet,
+      delta: amount(asset, units),
+      reason,
+      ...(tx.memo ? { memo: tx.memo } : {}),
+    });
+  };
+
+  if (tx.deltasComplete === true) {
+    // Deltas list every non-fee balance change, so compare amounts: whatever the events do not
+    // explain, per wallet and asset, is posted as a residual.
+    const residual = new Map<string, { wallet: string; asset: AssetId; units: bigint }>();
+    const add = (wallet: string, asset: AssetId, units: bigint): void => {
+      const key = `${wallet}:${asset}`;
+      const row = residual.get(key) ?? { wallet, asset, units: 0n };
+      residual.set(key, { ...row, units: row.units + units });
+    };
+    for (const d of tx.deltas) {
+      if (isTracked(ctx.tracked, d.wallet)) add(d.wallet, d.asset, d.deltaUnits);
+    }
+    for (const e of events) {
+      if (e.kind === 'transfer') {
+        add(e.wallet, e.amount.asset, e.direction === 'in' ? -e.amount.units : e.amount.units);
+      } else if (e.kind === 'exchange') {
+        for (const a of e.given) add(e.wallet, a.asset, a.units);
+        for (const a of e.received) add(e.wallet, a.asset, -a.units);
+      } else if (e.kind === 'escrow' && (e.action === 'lock' || e.action === 'reclaim')) {
+        add(e.wallet, e.amount.asset, e.action === 'lock' ? e.amount.units : -e.amount.units);
+      }
+    }
+    for (const row of [...residual.values()].sort((a, b) =>
+      a.wallet === b.wallet ? (a.asset < b.asset ? -1 : 1) : a.wallet < b.wallet ? -1 : 1,
+    )) {
+      if (row.units !== 0n) {
+        unclassified(
+          row.wallet,
+          row.asset,
+          row.units,
+          'On-chain balance change not explained by a classified operation',
+        );
+      }
+    }
+    return events;
+  }
+
+  // Normalized input without complete deltas: report deltas whose wallet and asset no event
+  // touched. A native delta equal to the charged fee on the fee payer is treated as the fee.
   tx.deltas.forEach((d) => {
-    if (isTracked(ctx.tracked, d.wallet)) {
-      const key = `${d.wallet}:${d.asset}`;
-      if (d.asset === NATIVE_ASSET && d.wallet === tx.feePayer && d.deltaUnits === -tx.feeCharged) {
-        return;
-      }
-      if (!handledDeltaKeys.has(key)) {
-        events.push({
-          kind: 'unclassified_change',
-          source: {
-            network: ctx.network,
-            ledger: ctx.ledger,
-            txIndex: tx.txIndex,
-            txHash: tx.txHash,
-            stage: 'operation',
-            opIndex: 0,
-            eventIndex: events.length,
-          },
-          closeTime: ctx.closeTime,
-          wallet: d.wallet,
-          delta: amount(d.asset, d.deltaUnits),
-          reason: d.reason ?? 'Unclassified on-chain balance delta',
-          ...(tx.memo ? { memo: tx.memo } : {}),
-        });
-      }
+    if (!isTracked(ctx.tracked, d.wallet)) return;
+    if (d.asset === NATIVE_ASSET && d.wallet === tx.feePayer && d.deltaUnits === -tx.feeCharged) {
+      return;
+    }
+    if (!handledDeltaKeys.has(`${d.wallet}:${d.asset}`)) {
+      unclassified(
+        d.wallet,
+        d.asset,
+        d.deltaUnits,
+        d.reason ?? 'Unclassified on-chain balance delta',
+      );
     }
   });
 

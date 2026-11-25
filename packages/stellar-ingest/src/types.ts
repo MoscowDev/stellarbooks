@@ -31,6 +31,11 @@ export interface BalanceDeltaRecord {
   readonly deltaUnits: bigint;
   /** Optional origin or explanation. */
   readonly reason?: string;
+  /**
+   * Zero-based index of the operation whose ledger-entry changes produced this delta. Absent for
+   * transaction-level changes outside any operation, and in normalized fixtures without it.
+   */
+  readonly opIndex?: number;
 }
 
 /**
@@ -73,6 +78,13 @@ export interface TransactionRecord {
   readonly operations: readonly OperationRecord[];
   /** Net balance deltas for all accounts affected in this transaction. */
   readonly deltas: readonly BalanceDeltaRecord[];
+  /**
+   * True when `deltas` lists every account and trustline balance change outside fee processing,
+   * as produced by {@link decodeLedger}. The classifier then posts any amount that classified
+   * events do not explain to suspense. When absent, only wallet and asset pairs that no event
+   * touched are reported.
+   */
+  readonly deltasComplete?: boolean;
   /** Soroban contract events emitted, if any. */
   readonly contractEvents?: readonly ContractEventRecord[];
 }

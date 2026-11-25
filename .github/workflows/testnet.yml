@@ -1,0 +1,30 @@
+name: Testnet
+
+# Reads recent public testnet ledgers through Stellar RPC and checks that every balance change of
+# every wallet reaches the journal. Scheduled rather than per-PR, because it depends on a public
+# service. No keys or secrets are used.
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  testnet:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions pinned to the same commit SHAs as ci.yml.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - run: pnpm run test packages/stellar-ingest/test/rpc-source.testnet.test.ts
+        env:
+          STELLARBOOKS_TESTNET_RPC_URL: https://soroban-testnet.stellar.org
+          STELLARBOOKS_TESTNET_LEDGERS: '50'

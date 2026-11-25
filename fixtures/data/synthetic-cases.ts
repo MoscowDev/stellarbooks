@@ -167,7 +167,7 @@ const event5: EconomicEvent = {
 };
 const journal5: readonly JournalEntry[] = mapWithTemplate([event5]);
 
-// 6. Claimable Balance Lock & Release
+// 6. Claimable Balance Lock (the claim needs a balance-ID lookup to classify, Q-042)
 const tx6Hash = '6666666666666666666666666666666666666666666666666666666666666666';
 const event6Lock: EconomicEvent = {
   kind: 'escrow',
@@ -186,25 +186,7 @@ const event6Lock: EconomicEvent = {
   amount: amount(ASSET_XLM, 40000000n),
   balanceId: '00000000aabbccdd11223344556677889900aabbccdd11223344556677889900aabb',
 };
-const event6Release: EconomicEvent = {
-  kind: 'escrow',
-  source: {
-    network: NETWORK,
-    ledger: 105,
-    txIndex: 0,
-    txHash: tx6Hash,
-    stage: 'operation',
-    opIndex: 1,
-    eventIndex: 0,
-  },
-  closeTime: '2026-11-17T12:00:25Z',
-  wallet: WALLET_A,
-  action: 'release',
-  amount: amount(ASSET_XLM, 40000000n),
-  balanceId: '00000000aabbccdd11223344556677889900aabbccdd11223344556677889900aabb',
-  counterparty: WALLET_B,
-};
-const journal6: readonly JournalEntry[] = mapWithTemplate([event6Lock, event6Release]);
+const journal6: readonly JournalEntry[] = mapWithTemplate([event6Lock]);
 
 // 7. Liquidity Pool Deposit
 const tx7Hash = '7777777777777777777777777777777777777777777777777777777777777777';
@@ -471,7 +453,8 @@ export const SYNTHETIC_CASES: readonly SyntheticCase[] = [
   },
   {
     id: 'claimable-balance-lifecycle',
-    description: 'Claimable balance created (locked) then claimed (released)',
+    description:
+      'Claimable balance created (locked) then claimed by another account; the claim emits no escrow event (Q-042)',
     provenance: 'synthetic',
     operationType: 'claimable_balance',
     trackedWallets: [WALLET_A],
@@ -513,7 +496,7 @@ export const SYNTHETIC_CASES: readonly SyntheticCase[] = [
         },
       ],
     },
-    expectedEvents: [event6Lock, event6Release],
+    expectedEvents: [event6Lock],
     expectedJournal: journal6,
   },
   {

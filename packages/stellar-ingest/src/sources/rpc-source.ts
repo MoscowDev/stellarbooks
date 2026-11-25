@@ -7,7 +7,7 @@
  */
 import { rpc } from '@stellar/stellar-sdk';
 import { inspectLedgerHeader } from '../deltas/ledger-header.js';
-import { extractLedgerCloseMetaRecord } from '../deltas/meta-deltas.js';
+import { decodeLedger } from '../deltas/ledger-decoder.js';
 import type { LedgerCloseMetaRecord, LedgerSource } from '../types.js';
 
 export interface RpcLedgerSourceOptions {
@@ -15,26 +15,46 @@ export interface RpcLedgerSourceOptions {
   readonly rpcUrl: string;
   /** Network slug, e.g. "testnet". */
   readonly network: string;
+  /**
+   * Network passphrase, for example `Networks.TESTNET`. Used to hash envelopes and match them
+   * to results. The source checks it against the RPC server's `getNetwork` before reading.
+   */
+  readonly networkPassphrase: string;
   /** Max ledgers per page request (1-200, default 50). */
   readonly batchSize?: number;
   /** Request timeout in milliseconds. */
   readonly timeoutMs?: number;
 }
 
+/**
+ * Reads contiguous ledgers from Stellar RPC `getLedgers` and decodes every transaction with
+ * {@link decodeLedger}. Throws on gaps, on a range beyond the RPC tip, when RPC fields disagree
+ * with the close metadata, and when the server is on a different network.
+ */
 export class RpcLedgerSource implements LedgerSource {
   private readonly server: rpc.Server;
   private readonly network: string;
+  private readonly networkPassphrase: string;
   private readonly batchSize: number;
+  private networkChecked = false;
 
   constructor(opts: RpcLedgerSourceOptions) {
     this.server = new rpc.Server(opts.rpcUrl, {
       timeout: opts.timeoutMs ?? 30000,
     });
     this.network = opts.network;
+    this.networkPassphrase = opts.networkPassphrase;
     this.batchSize = Math.max(1, Math.min(opts.batchSize ?? 50, 200));
   }
 
   async *ledgers(startLedger: number, endLedger?: number): AsyncIterable<LedgerCloseMetaRecord> {
+    if (!this.networkChecked) {
+      const { passphrase } = await this.server.getNetwork();
+      if (passphrase !== this.networkPassphrase) {
+        throw new Error('RPC server network passphrase does not match the configured network');
+      }
+      this.networkChecked = true;
+    }
     let currentLedger = startLedger;
     let targetLedger = endLedger;
 
@@ -72,8 +92,7 @@ export class RpcLedgerSource implements LedgerSource {
             `Ledger ${String(currentLedger)} RPC fields disagree with close metadata`,
           );
         }
-        const record = extractLedgerCloseMetaRecord(this.network, ledgerItem);
-        yield record;
+        yield decodeLedger(ledgerItem.metadataXdr, this.network, this.networkPassphrase);
         currentLedger = ledgerItem.sequence + 1;
       }
     }
