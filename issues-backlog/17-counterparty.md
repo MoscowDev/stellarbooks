@@ -2,7 +2,7 @@
 
 **Complexity** Medium
 
-**Status** Partly done (2026-11-25). The decoder keeps all memo kinds and muxed addresses, and payments record the wallet-side `muxedId`. A captured muxed payment and journal round-trip are still needed.
+**Status** Partly done (2026-11-25). The decoder keeps all memo kinds and muxed addresses, and payments record the wallet-side `muxedId`. A captured muxed payment now round-trips both muxed IDs into journal entry metadata. A captured hash or return memo is still needed.
 
 ## Context
 

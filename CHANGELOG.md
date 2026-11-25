@@ -15,7 +15,10 @@ All notable changes to this project are documented here. The format follows
   against the server before reading.
 - An opt-in testnet test (`STELLARBOOKS_TESTNET_RPC_URL`) and a scheduled CI job that read recent
   public ledgers and require every balance change to reach the journal.
-- Payment events record the tracked wallet's muxed ID.
+- Payment events record the tracked wallet's muxed ID and the counterparty's muxed ID.
+- `tools/fixture-gen` `capture.js` captures real testnet ledgers by operation type without keys.
+  Eight captured ledgers are committed with exact assertions.
+- Path payment details include `sendAmount`/`destMin` or `sendMax`/`destAmount`.
 
 ### Fixed
 

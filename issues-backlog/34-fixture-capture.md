@@ -2,6 +2,8 @@
 
 **Complexity** High
 
+**Status** Partly done (2026-11-25). `capture.js` captures real ledgers from live traffic without keys; eight are committed with exact assertions. Submitting transactions for operations that are rare on testnet is still open.
+
 ## Context
 
 This is part of the [StellarBooks roadmap](../docs/ROADMAP.md). `tools/fixture-gen/src/generate.ts` only connects to testnet and prints the latest ledger. Q-019 approved creating throwaway Friendbot accounts, with secret keys kept in memory only and never logged or written. Q-035 needs real fixtures per operation type.

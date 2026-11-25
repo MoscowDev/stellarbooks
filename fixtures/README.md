@@ -5,11 +5,31 @@ This folder holds two kinds of data. They have different evidential value, so ke
 ## Real testnet capture
 
 `data/testnet-ledger.json` is public testnet ledger **5796891**, captured on 2026-11-18 from
-the Stellar testnet RPC. It is the only real chain data in the repository.
+the Stellar testnet RPC.
 
-- Tests check that the pinned SDK decodes its raw header and metadata.
-- `decodeNativePayment` checks one XLM payment and its fee against the account balance changes.
-- Decoding the whole ledger and validating it against the journal remains open (Q-034).
+- `decodeLedger` decodes all 25 transactions. `packages/stellar-ingest/test/ledger-decoder.test.ts`
+  asserts exact values for a payment, account creation, account merge, a path payment to self, two
+  failed transactions and a Soroban fee-bump.
+- `decodeNativePayment` independently checks the same XLM payment and fee.
+
+## Captured operation ledgers
+
+`data/captured/` holds unmodified public testnet ledgers captured on 2026-11-25 with
+`tools/fixture-gen` (`capture.js`). Each file names its target transaction. Exact assertions are
+in `packages/stellar-ingest/test/captured.test.ts`.
+
+| File                                        | Target transaction                                          |
+| ------------------------------------------- | ----------------------------------------------------------- |
+| `claimable_balance-5919620.json`            | Create (tx 1) and an unrelated claim (tx 7)                 |
+| `clawback-5918543.json`                     | Clawback of an issued asset, text memo                      |
+| `clawback_claimable_balance-5918066.json`   | Clawback of a claimable balance                             |
+| `liquidity_pool_deposit-5918402.json`       | Pool deposit                                                |
+| `muxed_payment-5917783.json`                | Issued-asset payment to a muxed address                     |
+| `path_payment_strict_receive-5919962.json`  | Strict-receive path payment to self                         |
+| `path_payment_strict_send_to_other-5919253.json` | Strict-send path payment to another account            |
+| `trustline_removal-5919140.json`            | Trustline removal                                           |
+
+No `liquidity_pool_withdraw` appeared in the 3,000 ledgers scanned.
 
 ## Synthetic classifier cases (not golden fixtures)
 
@@ -43,5 +63,4 @@ golden fixture should:
 2. Have expected events and postings written and reviewed independently of the mapper.
 3. Assert source keys, lines and amounts exactly, so a one-unit change fails the test.
 
-`tools/fixture-gen` currently only connects to testnet. It does not yet submit or capture
-transactions.
+`tools/fixture-gen` (`capture.js`) captures real ledgers from live testnet traffic without keys.

@@ -2,7 +2,7 @@
 
 **Complexity** High
 
-**Status** Partly done (2026-11-25). `decodeLedger` pairs account and trustline changes, including creates and removals. Transfers and an account removal are asserted on a captured ledger; a captured trustline removal is still needed.
+**Status** Partly done (2026-11-25). `decodeLedger` pairs account and trustline changes, including creates and removals. Transfers, an account removal and a trustline removal are asserted on captured ledgers. A trustline removal with a non-zero balance cannot occur, so only zero-delta removal is covered.
 
 ## Context
 

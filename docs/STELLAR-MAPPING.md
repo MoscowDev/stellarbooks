@@ -64,7 +64,8 @@ suspense.
 - Operation details hold the base `G` address (`destination`, `from`), plus the full `M` address in
   `destinationMuxed`, `fromMuxed` or `sourceMuxed` when a muxed account was used. Balances and
   tracking always use the base address. Payment events record the tracked wallet's own muxed ID as
-  `muxedId`; counterparties stay base addresses, as `core` requires.
+  `muxedId` and the other party's as `counterpartyMuxedId`; counterparties stay base addresses, as
+  `core` requires. Both IDs are kept in the journal entry metadata.
 - Memos map to `{ type, value }`: `id` as a decimal string, `hash` and `return` as 64 lowercase hex
   characters, `text` as UTF-8. Text that is not valid UTF-8 is kept in the reversible SEP-51
   escape form (Q-041).
@@ -74,6 +75,9 @@ suspense.
 - **Captured ledger 5796891:** all 25 transactions decode. Exact assertions cover the XLM payment
   (also checked against `decodeNativePayment`), create account, account merge, a path payment to
   self, two failed transactions and a Soroban fee-bump.
+- **Captured operation ledgers:** eight more real ledgers in `fixtures/data/captured/` cover a
+  muxed issued-asset payment, a clawback, claimable-balance create and claim, both path payment
+  kinds, a pool deposit, a trustline removal and a claimable-balance clawback.
 - **Live testnet:** the opt-in test `packages/stellar-ingest/test/rpc-source.testnet.test.ts` reads
   recent ledgers through `RpcLedgerSource`, tracks every wallet that appears, and requires zero
   mapping failures and an exact match between journal wallet totals and on-chain changes. A manual
