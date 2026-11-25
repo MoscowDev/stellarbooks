@@ -3,6 +3,15 @@
   "version": "0.0.0",
   "description": "Command-line interface for StellarBooks.",
   "license": "MIT",
+  "homepage": "https://github.com/MoscowDev/stellarbooks/tree/main/packages/cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoscowDev/stellarbooks.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/MoscowDev/stellarbooks/issues"
+  },
   "type": "module",
   "bin": {
     "stellarbooks": "./dist/bin.js"

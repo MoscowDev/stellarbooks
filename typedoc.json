@@ -11,7 +11,7 @@
   "tsconfig": "tsconfig.test.json",
   "out": "docs/api",
   "readme": "none",
-  "disableSources": true,
+  "gitRemote": "origin",
   "excludePrivate": true,
   "excludeInternal": true,
   "treatWarningsAsErrors": true,

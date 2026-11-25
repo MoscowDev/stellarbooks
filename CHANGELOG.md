@@ -6,6 +6,24 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Security
+
+- `toCsv` now neutralizes text cells that a spreadsheet could evaluate as formulas (for example a
+  Stellar memo beginning with `=`) by prefixing `'`. Numbers are unchanged. Pass
+  `{ escapeFormulas: false }` to disable this for programmatic consumers (Q-040).
+
+### Changed
+
+- Added `repository`, `homepage` and `bugs` metadata for `github.com/MoscowDev/stellarbooks` and
+  enabled source links in the generated API reference (Q-003).
+- `SECURITY.md` now points to GitHub private vulnerability reporting.
+
+- Renamed the synthetic classifier dataset from `fixtures/data/golden-fixtures.ts` to
+  `fixtures/data/synthetic-cases.ts` (`GOLDEN_FIXTURES` is now `SYNTHETIC_CASES`). Each case is
+  tagged `provenance: 'synthetic'`, and the fixtures guide states that these cases use invented
+  ledgers and mapper-generated expectations, so they do not verify chain behavior (Q-035).
+- Ignored the local `.pnpm-store/` directory.
+
 ### Added
 
 - A runnable offline example that verifies a captured XLM payment and fee and demonstrates a custom rule.

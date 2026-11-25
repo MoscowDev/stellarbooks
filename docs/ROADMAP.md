@@ -19,4 +19,4 @@ Fresh testnet capture and live verification are deferred. That pass will add rea
 Core amount and journal invariants, mapping templates, and report exports are exercised
 by the offline suite. The PostgreSQL 15 and 18 integration test passed for concurrent
 replay, rollback, cutoff enforcement, line sealing, and metadata round-trips.
-The [30 local issue drafts](../issues-backlog/) include work beyond the first Wave.
+The [42 local issue drafts](../issues-backlog/) include work beyond the first Wave.

@@ -3,6 +3,15 @@
   "version": "0.0.0",
   "description": "PostgreSQL migrations and repositories for the append-only StellarBooks journal.",
   "license": "MIT",
+  "homepage": "https://github.com/MoscowDev/stellarbooks/tree/main/packages/storage-postgres#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoscowDev/stellarbooks.git",
+    "directory": "packages/storage-postgres"
+  },
+  "bugs": {
+    "url": "https://github.com/MoscowDev/stellarbooks/issues"
+  },
   "type": "module",
   "sideEffects": false,
   "exports": {

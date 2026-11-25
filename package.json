@@ -4,6 +4,14 @@
   "private": true,
   "description": "Turns Stellar network activity into auditable double-entry accounting records (monorepo root).",
   "license": "MIT",
+  "homepage": "https://github.com/MoscowDev/stellarbooks#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoscowDev/stellarbooks.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MoscowDev/stellarbooks/issues"
+  },
   "type": "module",
   "packageManager": "pnpm@11.17.0",
   "engines": {

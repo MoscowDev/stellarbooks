@@ -3,6 +3,15 @@
   "version": "0.0.0",
   "description": "Reads Stellar ledger data (LedgerCloseMeta XDR) and normalizes it into economic events for StellarBooks.",
   "license": "MIT",
+  "homepage": "https://github.com/MoscowDev/stellarbooks/tree/main/packages/stellar-ingest#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoscowDev/stellarbooks.git",
+    "directory": "packages/stellar-ingest"
+  },
+  "bugs": {
+    "url": "https://github.com/MoscowDev/stellarbooks/issues"
+  },
   "type": "module",
   "sideEffects": false,
   "exports": {
