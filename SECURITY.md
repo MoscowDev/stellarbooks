@@ -25,8 +25,9 @@ Please **do not open a public issue**. Report privately through GitHub's private
 reporting: <https://github.com/MoscowDev/stellarbooks/security/advisories/new> ("Report a
 vulnerability" under the repository's Security tab).
 
-Private reporting must be enabled in the repository settings for that link to work. As of
-2026-11-25 it is not enabled yet (Q-004 in docs/OPEN-QUESTIONS.md).
+The same private form is used for Code of Conduct reports; those start their title with "Code of
+Conduct". Private reporting must be enabled in the repository settings for the link to work
+(Q-004 in docs/OPEN-QUESTIONS.md).
 
 Include the affected version or commit, reproduction steps and the impact. We aim to acknowledge
 reports within 7 days. This project has no paid bug bounty.

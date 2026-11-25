@@ -41,7 +41,8 @@ All notable changes to this project are documented here. The format follows
 
 - Added `repository`, `homepage` and `bugs` metadata for `github.com/MoscowDev/stellarbooks` and
   enabled source links in the generated API reference (Q-003).
-- `SECURITY.md` now points to GitHub private vulnerability reporting.
+- `SECURITY.md` and `CODE_OF_CONDUCT.md` now point to GitHub private vulnerability reporting for
+  security and conduct reports (Q-004). The copyright holder stays "StellarBooks contributors" (Q-002).
 
 - Renamed the synthetic classifier dataset from `fixtures/data/golden-fixtures.ts` to
   `fixtures/data/synthetic-cases.ts` (`GOLDEN_FIXTURES` is now `SYNTHETIC_CASES`). Each case is
