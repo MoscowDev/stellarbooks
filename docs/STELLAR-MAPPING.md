@@ -75,8 +75,8 @@ suspense.
 - **Captured ledger 5796891:** all 25 transactions decode. Exact assertions cover the XLM payment
   (also checked against `decodeNativePayment`), create account, account merge, a path payment to
   self, two failed transactions and a Soroban fee-bump.
-- **Captured operation ledgers:** eight more real ledgers in `fixtures/data/captured/` cover a
-  muxed issued-asset payment, a clawback, claimable-balance create and claim, both path payment
+- **Captured operation ledgers:** nine more real ledgers in `fixtures/data/captured/` cover a
+  muxed issued-asset payment, a payment from a muxed transaction source, a clawback, claimable-balance create and claim, both path payment
   kinds, a pool deposit, a trustline removal and a claimable-balance clawback.
 - **Live testnet:** the opt-in test `packages/stellar-ingest/test/rpc-source.testnet.test.ts` reads
   recent ledgers through `RpcLedgerSource`, tracks every wallet that appears, and requires zero

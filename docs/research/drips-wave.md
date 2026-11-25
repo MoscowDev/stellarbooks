@@ -160,3 +160,16 @@ relevant to repo readiness).
    in Wave 7); re-check the latest changelog before each Wave.
 6. Our fetch tool sometimes paraphrases; re-verify verbatim quotes against the live pages
    before publishing them in CONTRIBUTING.
+
+## Update 2026-11-25
+
+Retrieved 2026-11-25 from
+<https://docs.drips.network/wave/maintainers/participating-in-a-wave/>:
+
+- Maintainers install the Drips GitHub App and "must explicitly apply these repositories to a
+  specific Wave Program". Program organizers approve each application; a rejected repository can be
+  appealed but "cannot be re-applied".
+- "When adding an issue, you must assign a complexity level", which sets the points: Trivial (100),
+  Medium (150), High (200).
+- During a Wave, maintainers should review applicants quickly ("Speed is critical") and mark issues
+  resolved before the Wave ends; both sides can leave reviews within 14 days.

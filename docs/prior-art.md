@@ -116,7 +116,7 @@ I could not tell which one was meant, so both are listed.
 **(a) SoroScan/soroscan**, the Soroban event indexer
 
 - **URL:** https://github.com/SoroScan/soroscan (owner: `SoroScan`).
-- **Licence:** The README states "This project is licensed under the [MIT License](LICENSE)" and shows an
+- **Licence:** The README states "This project is licensed under the MIT License" (its link points to that repo's own `LICENSE`) and shows an
   MIT badge. However, the GitHub API reports no detected licence, and no LICENSE file was present in
   the repo root listing on 2026-11-16. **Treat the licence as unconfirmed.**
 - **Language:** Python (Django, Strawberry GraphQL, Celery) plus Rust Soroban contracts. **Last

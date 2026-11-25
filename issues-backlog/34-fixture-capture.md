@@ -2,7 +2,7 @@
 
 **Complexity** High
 
-**Status** Partly done (2026-11-25). `capture.js` captures real ledgers from live traffic without keys; eight are committed with exact assertions. Submitting transactions for operations that are rare on testnet is still open.
+**Status** Partly done (2026-11-25). `capture.js` captures real ledgers from live traffic without keys; nine are committed with exact assertions. Submitting transactions for operations that are rare on testnet is still open.
 
 ## Context
 

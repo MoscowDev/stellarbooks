@@ -11,7 +11,7 @@ Pure domain logic for StellarBooks, with no I/O and no runtime dependencies:
 - configurable mapping rules and built-in templates (freelancer, merchant, payroll)
 - balance aggregation
 
-**Status:** M1 complete. The package is not yet published.
+**Status:** implemented and tested; not yet published to npm.
 
 ```ts
 import { freelancerTemplate, mapEvents, computeBalances } from '@stellarbooks/core';
@@ -24,7 +24,8 @@ const { entries, unmatched, failures } = mapEvents(events, ruleSet, {
 const balances = computeBalances(entries, { byWallet: true });
 ```
 
-`events` normally come from `@stellarbooks/stellar-ingest` (milestone M3).
+`events` normally come from `@stellarbooks/stellar-ingest` (`extractEvents`). See the
+[whole-ledger example](../../examples/whole-ledger.mjs) for the full pipeline.
 
 See [docs/DOMAIN-MODEL.md](../../docs/DOMAIN-MODEL.md) and
 [docs/ACCOUNTING-RULES.md](../../docs/ACCOUNTING-RULES.md). The templates are starting points, not

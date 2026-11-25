@@ -23,7 +23,7 @@ of speed. Please read this guide before opening a pull request.
 
 A change is done only when all of the following hold:
 
-- Tests cover it: unit tests, plus property-based tests or golden fixtures where relevant.
+- Tests cover it: unit tests, plus property-based tests or captured-ledger fixtures where relevant.
 - `pnpm run check` passes (typecheck, lint, format, tests, API docs).
 - Every exported symbol has TSDoc.
 - The relevant docs are updated: README, `docs/*.md`, ADRs, `docs/ACCOUNTING-RULES.md` for mapping
@@ -48,8 +48,22 @@ pnpm run test
 pnpm run docs:api
 ```
 
-Requires Node.js 22.13 or later and pnpm 11. Postgres integration tests will need Docker. Their setup
-will be documented when milestone M5 lands.
+Requires Node.js 22.13 or later and pnpm 11. `pnpm run check` runs everything CI runs except the
+dependency audit (`pnpm run audit`) and the opt-in suites below.
+
+## Tests
+
+| Suite                    | Where                                                            | How to run                                                                                         |
+| ------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Unit and property-based  | `packages/*/test`, `test/`                                       | `pnpm run test`                                                                                    |
+| Captured testnet ledgers | `packages/stellar-ingest/test/{ledger-decoder,captured}.test.ts` | `pnpm run test` (offline, uses `fixtures/data`)                                                    |
+| PostgreSQL integration   | `packages/storage-postgres/test/checkpoint.postgres.test.ts`     | Set `STELLARBOOKS_TEST_DATABASE_URL`; see the [storage guide](packages/storage-postgres/README.md) |
+| Live testnet             | `packages/stellar-ingest/test/rpc-source.testnet.test.ts`        | Set `STELLARBOOKS_TESTNET_RPC_URL=https://soroban-testnet.stellar.org`                             |
+
+Fixtures must be real chain data or clearly labelled synthetic cases; see
+[fixtures/README.md](fixtures/README.md). To add a real ledger for an operation, use
+`tools/fixture-gen` (`capture.js`), then write exact assertions and check amounts against a second
+source in the same XDR. Never derive expected journal entries by running the mapper under test.
 
 ## Architecture decisions
 

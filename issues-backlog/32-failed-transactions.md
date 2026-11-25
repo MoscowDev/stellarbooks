@@ -2,6 +2,8 @@
 
 **Complexity** Medium
 
+**Status** Done (2026-11-25). Failed transactions 1 and 3 of captured ledger 5796891 decode with success read from the result, and `ledger-decoder.test.ts` asserts exactly one fee entry for a failed transaction.
+
 ## Context
 
 This is part of the [StellarBooks roadmap](../docs/ROADMAP.md). A failed transaction still charges its fee, but none of its operations apply. The classifier returns early when `successful` is false, but only synthetic cases exercise this (see `fixtures/README.md`).

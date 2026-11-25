@@ -1,23 +1,21 @@
 # Stellar Wave submission
 
-StellarBooks helps Stellar apps record payments and network fees in a double-entry journal.
-The [quick start](../README.md#quick-start) runs against a committed testnet ledger offline and
-prints journal entries and a trial balance; its reconciliation uses synthetic balances. The
-ingestion package decodes whole ledgers from Stellar RPC. A run over 200 live testnet ledgers
-(about 4,300 transactions) produced no mapping failures, and every wallet's journal total matched
-the decoded on-chain changes.
+StellarBooks turns Stellar activity into balanced, append-only double-entry journal entries for
+applications such as payroll, remittance and merchant tools. The
+[quick start](../README.md#quick-start) runs offline: it decodes all 25 transactions of a captured
+testnet ledger, books three wallets, prints a trial balance and checks the journal against the
+chain. The ingestion package reads whole ledgers from Stellar RPC, and a scheduled CI job books every
+wallet in recent live testnet ledgers and requires an exact match with on-chain changes.
 
 ## Application summary
 
-> StellarBooks is a pre-alpha TypeScript library for Stellar payroll, remittance, and merchant
-> applications that need double-entry records for on-chain activity. The offline quick start
-> reads a captured testnet ledger, verifies one XLM payment and its fee against XDR account
-> changes, and produces balanced journal entries and a trial balance. It also demonstrates
-> customizing an accounting rule. The reconciliation example uses synthetic balances.
-> It decodes whole ledgers from Stellar RPC; activity it cannot classify yet, such as Soroban
-> token events and offer fills, is posted to a suspense account rather than dropped. Our first
-> Wave would focus on fixture coverage, pagination checks, and examples that make the library
-> easier to adopt.
+> StellarBooks is a pre-alpha TypeScript library that gives Stellar payroll, remittance and
+> merchant applications auditable double-entry books. It decodes whole ledgers from Stellar RPC,
+> books fees, payments, account lifecycle, swaps, claimable balances and clawbacks with exact
+> integer amounts, and posts anything it cannot classify yet, such as Soroban token events, to a
+> suspense account rather than dropping it. Entries balance per asset, are append-only and are
+> enforced by PostgreSQL. Our first Wave focuses on fixture coverage, pagination checks and
+> examples that make the library easier to adopt.
 
 ## First Wave
 
@@ -32,16 +30,22 @@ against the Wave's timeline and available reviewer capacity before nominating th
 | [Report exports](../issues-backlog/27-report-export.md)             | Add export round-trip coverage and an example consumer for decimal-string minor units.       |
 
 Follow the [Drips maintainer guide](https://docs.drips.network/wave/maintainers/participating-in-a-wave/)
-to apply the public repository. Assign a reviewer to each nominated issue and check
-applications and pull requests daily during the Wave.
+(checked 2026-11-25): install the Drips GitHub App, apply the public repository to a Wave Program,
+and wait for approval. Each issue added to a Wave needs a complexity level, which sets its points
+(Trivial 100, Medium 150, High 200). The drafts in `issues-backlog/` are not GitHub issues yet;
+create the nominated ones on GitHub first. Assign contributors quickly and resolve issues before the
+Wave ends so contributors receive their points.
 
 Nominate the four drafts after repository approval. Confirm who will review ingestion
 and reporting PRs during the Wave. One maintainer can cover both areas if available.
 
 ## Verification and scope
 
-Exact assertions cover one captured ledger. Soroban event decoding, classifiers for offers and
-claims, and independent testnet balance reconciliation remain in the [roadmap](ROADMAP.md).
+Exact assertions cover ten captured testnet ledgers, and a scheduled CI job books recent live
+testnet ledgers. Soroban event decoding, classifiers for offers and claims, and independent
+on-chain balance reconciliation remain in the [roadmap](ROADMAP.md).
 Review the [open questions](OPEN-QUESTIONS.md) for the dependency audit status before submission.
 
-The 2026-11-19 verification recorded 160 passing offline tests, one skipped database case in the offline run, and successful PostgreSQL 15 and 18 integration runs in the storage pass. The dependency audit passed under the configured policy on that date. Rerun checks against the submission revision.
+On 2026-11-25 every CI job passed on `main` (typecheck, lint, format, tests, API docs, dependency
+audit, and PostgreSQL 15 and 18), and the testnet workflow passed against live testnet. Check the
+[Actions tab](https://github.com/MoscowDev/stellarbooks/actions) for the submission revision.

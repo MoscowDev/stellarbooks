@@ -1,5 +1,10 @@
 # @stellarbooks/reports
 
+Reports and exports over StellarBooks journal entries: general ledger, trial balance, account
+statements, balance snapshots, CSV and JSON export, and exact valuation with recorded rate
+provenance. Reports are pure functions over entries; they read nothing from the network or a
+database.
+
 Use `generalLedger(entries, accountCode)` for dated debit, credit and running balance rows.
 Supply the full journal history for the account when computing running balances from zero.
 Use `balanceSnapshot(entries, options)` for signed balances and `trialBalance(entries, options)`

@@ -15,7 +15,7 @@ the Stellar testnet RPC.
 ## Captured operation ledgers
 
 `data/captured/` holds unmodified public testnet ledgers captured on 2026-11-25 with
-`tools/fixture-gen` (`capture.js`). Each file names its target transaction. Exact assertions are
+`tools/fixture-gen` (`capture.js`), most on 2026-11-25. Each file names its target transaction. Exact assertions are
 in `packages/stellar-ingest/test/captured.test.ts`.
 
 | File                                        | Target transaction                                          |
@@ -25,6 +25,7 @@ in `packages/stellar-ingest/test/captured.test.ts`.
 | `clawback_claimable_balance-5918066.json`   | Clawback of a claimable balance                             |
 | `liquidity_pool_deposit-5918402.json`       | Pool deposit                                                |
 | `muxed_payment-5917783.json`                | Issued-asset payment to a muxed address                     |
+| `muxed_source_payment-5920622.json`         | XLM payment from a muxed transaction source                 |
 | `path_payment_strict_receive-5919962.json`  | Strict-receive path payment to self                         |
 | `path_payment_strict_send_to_other-5919253.json` | Strict-send path payment to another account            |
 | `trustline_removal-5919140.json`            | Trustline removal                                           |
@@ -49,10 +50,10 @@ The test compares only event counts, kinds and wallets, plus the number of journ
 Because the expected journal comes from the mapper, a mapping bug would not cause a failure.
 Do not cite these cases as verification of an operation type.
 
-The cases cover inputs shaped like `payment` (native and issued asset), path payments,
-`create_account`, `account_merge`, claimable balances, liquidity pools, `clawback`, offers, fee
-bumps, failed transactions, memos and SAC/SEP-41 contract events. That is not coverage: none of
-these operations is decoded from real ledger data yet.
+The ten cases are shaped like: three payments, a strict-send path payment, an account merge, a
+claimable-balance lock, a liquidity-pool deposit, a clawback, a failed transaction and a Soroban
+contract transfer. They are not evidence of chain behaviour; real-ledger coverage is in the
+captured ledgers above.
 
 ## Replacing them with real fixtures
 

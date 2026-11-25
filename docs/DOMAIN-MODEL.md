@@ -1,6 +1,6 @@
 # Domain Model
 
-This describes `@stellarbooks/core` as of M1. The generated API reference (`pnpm run docs:api`,
+This describes the concepts in `@stellarbooks/core`. The generated API reference (`pnpm run docs:api`,
 output in `docs/api/`) is authoritative for exact signatures. This document explains the concepts
 and invariants.
 
@@ -13,8 +13,10 @@ and invariants.
 | Scale      | `protocolScale(asset)`              | 7 for native, classic and pool shares. SEP-41 decimals are supplied by the caller (Q-020).       |
 | Formatting | `formatUnits` / `parseUnits`        | Exact. Parsing rejects excess precision instead of rounding.                                     |
 
-**Address checks in `core` are structural only:** prefix, length and base32 alphabet. Checksums are
-verified in `stellar-ingest` with the official SDK. Counterparties are always **base** addresses
+**Address checks in `core` are structural only:** prefix, length and base32 alphabet, without a
+checksum (Q-033). Addresses that `stellar-ingest` decodes from XDR are encoded by the official SDK and
+are well-formed; addresses supplied by callers, such as tracked wallets, are only checked
+structurally. Counterparties are always **base** addresses
 (`G...` or `C...`). Muxed IDs are carried separately (`muxedId`, `counterpartyMuxedId`).
 
 ## Chart of accounts
@@ -32,7 +34,7 @@ verified in `stellar-ingest` with the official SDK. Counterparties are always **
 | `conversion`        | equity        | Trading account balancing each asset leg of an exchange (ADR-0005)       |
 | `suspense`          | any           | Unexplained balance changes awaiting review (Q-016)                      |
 | `networkFees`       | expense       | Network fees                                                             |
-| `retainedEarnings`  | equity        | Target of period close (M6)                                              |
+| `retainedEarnings`  | equity        | Target of closing entries (not implemented yet, issue 37)                |
 
 ## Source positions
 
@@ -48,14 +50,14 @@ verified in `stellar-ingest` with the official SDK. Counterparties are always **
 
 Normalized facts about **one** tracked wallet (`EconomicEvent`, discriminated by `kind`):
 
-| Kind                  | Meaning                                 | Key fields                                                              |
-| --------------------- | --------------------------------------- | ----------------------------------------------------------------------- |
-| `fee`                 | Fee charged to the fee-paying wallet    | `amount` (native)                                                       |
-| `fee_refund`          | Part of a fee refunded                  | `amount` (native)                                                       |
-| `transfer`            | Value in or out, one asset              | `direction`, `amount`, `counterparty?`, `counterpartyMuxedId?`, `via`   |
-| `exchange`            | Gave some assets, received others       | `given[]`, `received[]`, `via`                                          |
-| `escrow`              | Claimable balance created by the wallet | `action` (lock, reclaim, release or clawed_back), `amount`, `balanceId` |
-| `unclassified_change` | Balance change nobody explained         | signed `delta`, `reason`                                                |
+| Kind                  | Meaning                                                              | Key fields                                                              |
+| --------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `fee`                 | Fee charged to the fee-paying wallet                                 | `amount` (native)                                                       |
+| `fee_refund`          | Part of a fee refunded (not emitted yet: fees are booked net, Q-043) | `amount` (native)                                                       |
+| `transfer`            | Value in or out, one asset                                           | `direction`, `amount`, `counterparty?`, `counterpartyMuxedId?`, `via`   |
+| `exchange`            | Gave some assets, received others                                    | `given[]`, `received[]`, `via`                                          |
+| `escrow`              | Claimable balance created by the wallet                              | `action` (lock, reclaim, release or clawed_back), `amount`, `balanceId` |
+| `unclassified_change` | Balance change nobody explained                                      | signed `delta`, `reason`                                                |
 
 `transfer.via` is one of the following:
 
@@ -73,9 +75,11 @@ Normalized facts about **one** tracked wallet (`EconomicEvent`, discriminated by
 `exchange.via` is one of `path_payment`, `offer`, `liquidity_pool_deposit` or
 `liquidity_pool_withdraw`.
 
-A path payment sent by a tracked wallet is **two** events: an `exchange` (what it gave and what was
-delivered) and an outgoing `transfer` of the delivered amount. The receiver sees one incoming
-`transfer`.
+**Design for path payments:** a path payment sent by a tracked wallet to someone else is meant to be
+**two** events, an `exchange` (what it gave and what was delivered) and an outgoing `transfer` of the
+delivered amount, while the receiver sees one incoming `transfer`. **Today** the classifier books a
+path payment to self as one `exchange`, and sends both legs of a path payment to another account to
+suspense (issues 08 and 09).
 
 ## Journal entries
 
@@ -89,7 +93,7 @@ delivered) and an outgoing `transfer` of the delivered amount. The receiver sees
   - `account` and a signed `amount`. **Positive is a debit, negative is a credit.**
   - optional: `wallet`, `counterparty` and `note`
 - `canonicalEntryJson(entry)` gives a byte-stable serialization. Keys are sorted, bigints become
-  strings and `undefined` is omitted. Storage hashes it to detect a replay that changes content.
+  strings and `undefined` is omitted. It is available for comparing entries; storage does not compare content on replay yet (issue 45).
 
 ## Keys (ADR-0006, ADR-0010)
 
@@ -111,12 +115,12 @@ delivered) and an outgoing `transfer` of the delivered amount. The receiver sees
 
 ## Invariants and where they are enforced
 
-| #   | Invariant                                                                  | Code                                        | Tests                                     |
-| --- | -------------------------------------------------------------------------- | ------------------------------------------- | ----------------------------------------- |
-| 1   | Each entry sums to zero per asset                                          | `validateEntry` (later also the DB trigger) | `journal.test.ts` property                |
-| 2   | Amounts are bigint, non-zero and within i128                               | `amount`, `validateEntry`                   | `asset-amount.test.ts`, `journal.test.ts` |
-| 3   | An entry plus its reversal net to zero for every account, asset and wallet | `reverseEntry`                              | `journal.test.ts` property                |
-| 4   | Mapping is deterministic and independent of input order                    | `mapEvents`                                 | `mapping.test.ts` property                |
-| 5   | Every template handles every event kind                                    | templates                                   | `mapping.test.ts` property                |
-| 6   | Mapped entries always balance                                              | `mapEvents`                                 | `mapping.test.ts` property                |
-| 7   | `core` has no I/O or dependencies                                          | lint and structure test                     | `test/repo-structure.test.ts`             |
+| #   | Invariant                                                                  | Code                                   | Tests                                     |
+| --- | -------------------------------------------------------------------------- | -------------------------------------- | ----------------------------------------- |
+| 1   | Each entry sums to zero per asset                                          | `validateEntry` and a database trigger | `journal.test.ts` property                |
+| 2   | Amounts are bigint, non-zero and within i128                               | `amount`, `validateEntry`              | `asset-amount.test.ts`, `journal.test.ts` |
+| 3   | An entry plus its reversal net to zero for every account, asset and wallet | `reverseEntry`                         | `journal.test.ts` property                |
+| 4   | Mapping is deterministic and independent of input order                    | `mapEvents`                            | `mapping.test.ts` property                |
+| 5   | Every template handles every event kind                                    | templates                              | `mapping.test.ts` property                |
+| 6   | Mapped entries always balance                                              | `mapEvents`                            | `mapping.test.ts` property                |
+| 7   | `core` has no I/O or dependencies                                          | lint and structure test                | `test/repo-structure.test.ts`             |
