@@ -23,10 +23,23 @@ interface ClassifyContext {
   readonly tracked: TrackedSet;
 }
 
-/** The muxed ID of an `M...` address as `{ muxedId }`, or nothing for an absent value. */
-function muxedIdOf(address: unknown): { muxedId?: string } {
-  if (typeof address !== 'string' || !address.startsWith('M')) return {};
-  return { muxedId: MuxedAccount.fromAddress(address, '0').id() };
+/** The muxed ID of an `M...` address, or undefined for any other value. */
+function muxedId(address: unknown): string | undefined {
+  if (typeof address !== 'string' || !address.startsWith('M')) return undefined;
+  return MuxedAccount.fromAddress(address, '0').id();
+}
+
+/** Muxed ID fields for a transfer event, omitting absent IDs. */
+function muxedFields(
+  own: unknown,
+  other: unknown,
+): { muxedId?: string; counterpartyMuxedId?: string } {
+  const ownId = muxedId(own);
+  const otherId = muxedId(other);
+  return {
+    ...(ownId === undefined ? {} : { muxedId: ownId }),
+    ...(otherId === undefined ? {} : { counterpartyMuxedId: otherId }),
+  };
 }
 
 /** Deltas of one wallet, limited to one operation when the decoder recorded operation indexes. */
@@ -183,7 +196,7 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
             source: receiverSource,
             closeTime: ctx.closeTime,
             wallet: dest,
-            ...muxedIdOf(detail['destinationMuxed']),
+            ...muxedFields(detail['destinationMuxed'], detail['sourceMuxed']),
             direction: 'in',
             amount: amount(opAsset, units),
             counterparty: src,
@@ -198,7 +211,7 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
             source: opSource,
             closeTime: ctx.closeTime,
             wallet: src,
-            ...muxedIdOf(detail['sourceMuxed']),
+            ...muxedFields(detail['sourceMuxed'], detail['destinationMuxed']),
             direction: 'out',
             amount: amount(opAsset, units),
             counterparty: dest,

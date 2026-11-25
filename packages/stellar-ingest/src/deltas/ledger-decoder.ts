@@ -173,11 +173,20 @@ function operationDetail(
         amount: body.value.amount,
       };
     case 'pathPaymentStrictSend':
+      return {
+        ...withMuxed('destination', body.value.destination),
+        sendAsset: sdkAsset(body.value.sendAsset),
+        sendAmount: body.value.sendAmount,
+        destAsset: sdkAsset(body.value.destAsset),
+        destMin: body.value.destMin,
+      };
     case 'pathPaymentStrictReceive':
       return {
         ...withMuxed('destination', body.value.destination),
         sendAsset: sdkAsset(body.value.sendAsset),
+        sendMax: body.value.sendMax,
         destAsset: sdkAsset(body.value.destAsset),
+        destAmount: body.value.destAmount,
       };
     case 'createAccount':
       return {

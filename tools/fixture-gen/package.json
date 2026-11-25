@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b",
-    "capture": "node dist/generate.js"
+    "capture": "node dist/capture.js ../../fixtures/data/captured",
+    "probe": "node dist/generate.js"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "17.4.0"

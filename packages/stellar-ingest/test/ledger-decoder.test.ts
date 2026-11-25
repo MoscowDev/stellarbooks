@@ -223,7 +223,12 @@ describe('classifier safeguards', () => {
         muxedId: '42',
         counterparty: PAYER,
       }),
-      expect.objectContaining({ wallet: PAYER, direction: 'out', counterparty: PAYEE }),
+      expect.objectContaining({
+        wallet: PAYER,
+        direction: 'out',
+        counterparty: PAYEE,
+        counterpartyMuxedId: '42',
+      }),
     ]);
   });
 
