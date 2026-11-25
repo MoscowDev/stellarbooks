@@ -1,10 +1,12 @@
 /**
- * Golden fixtures dataset for all handled Stellar operations, fees, and Soroban events.
+ * SYNTHETIC classifier cases. These are NOT golden fixtures and NOT captured chain data.
  *
- * Each fixture contains:
- * - Deterministic ledger record with transaction deltas and operations
- * - Expected normalized EconomicEvent[]
- * - Expected balanced JournalEntry[] (mapped with standard rules)
+ * - Ledger sequences (100, 101, ...), transaction hashes ("1111...") and pool IDs are invented.
+ * - Balance deltas and contract events are hand-written normalized records, not decoded XDR.
+ * - `expectedJournal` is produced by `mapEvents` itself, so it cannot detect a mapping bug.
+ *
+ * Use these cases only to exercise the classifier's control flow on normalized input.
+ * Real, independently reviewed fixtures are tracked in Q-035 and issues-backlog/20.
  *
  * @module
  */
@@ -18,7 +20,7 @@ import {
   type EconomicEvent,
   type JournalEntry,
 } from '../../packages/core/dist/index.js';
-import type { GoldenFixture } from '../types.js';
+import type { SyntheticCase } from '../types.js';
 
 const NETWORK = 'testnet';
 const WALLET_A = 'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI';
@@ -288,10 +290,11 @@ const event10: EconomicEvent = {
 };
 const journal10: readonly JournalEntry[] = mapWithTemplate([event10]);
 
-export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
+export const SYNTHETIC_CASES: readonly SyntheticCase[] = [
   {
     id: 'payment-native-in',
     description: 'Tracked wallet receives a native XLM payment',
+    provenance: 'synthetic',
     operationType: 'payment',
     trackedWallets: [WALLET_A],
     ledgerRecord: {
@@ -327,6 +330,7 @@ export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
   {
     id: 'payment-native-out',
     description: 'Tracked wallet sends a native XLM payment and pays transaction fee',
+    provenance: 'synthetic',
     operationType: 'payment',
     trackedWallets: [WALLET_A],
     ledgerRecord: {
@@ -362,6 +366,7 @@ export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
   {
     id: 'payment-credit-issued',
     description: 'Tracked wallet receives classic issued asset USDC',
+    provenance: 'synthetic',
     operationType: 'payment',
     trackedWallets: [WALLET_A],
     ledgerRecord: {
@@ -398,6 +403,7 @@ export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
   {
     id: 'path-payment-strict-send',
     description: 'Tracked wallet gives XLM and receives USDC via path payment',
+    provenance: 'synthetic',
     operationType: 'path_payment_strict_send',
     trackedWallets: [WALLET_A],
     ledgerRecord: {
@@ -433,6 +439,7 @@ export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
   {
     id: 'account-merge',
     description: 'Account merged into tracked wallet transferring XLM',
+    provenance: 'synthetic',
     operationType: 'account_merge',
     trackedWallets: [WALLET_A],
     ledgerRecord: {
@@ -465,6 +472,7 @@ export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
   {
     id: 'claimable-balance-lifecycle',
     description: 'Claimable balance created (locked) then claimed (released)',
+    provenance: 'synthetic',
     operationType: 'claimable_balance',
     trackedWallets: [WALLET_A],
     ledgerRecord: {
@@ -511,6 +519,7 @@ export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
   {
     id: 'liquidity-pool-deposit',
     description: 'Depositing two assets and minting pool shares',
+    provenance: 'synthetic',
     operationType: 'liquidity_pool_deposit',
     trackedWallets: [WALLET_A],
     ledgerRecord: {
@@ -547,6 +556,7 @@ export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
   {
     id: 'clawback',
     description: 'Issuer claws back credit asset',
+    provenance: 'synthetic',
     operationType: 'clawback',
     trackedWallets: [WALLET_A],
     ledgerRecord: {
@@ -579,6 +589,7 @@ export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
   {
     id: 'failed-tx-fee-only',
     description: 'Failed transaction where only fee is charged to fee-paying wallet',
+    provenance: 'synthetic',
     operationType: 'failed_transaction',
     trackedWallets: [WALLET_A],
     ledgerRecord: {
@@ -604,6 +615,7 @@ export const GOLDEN_FIXTURES: readonly GoldenFixture[] = [
   {
     id: 'soroban-sac-transfer',
     description: 'Soroban SAC contract transfer event',
+    provenance: 'synthetic',
     operationType: 'invoke_host_function',
     trackedWallets: [WALLET_A],
     ledgerRecord: {

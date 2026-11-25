@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { Networks, xdr } from '@stellar/stellar-sdk';
 import { describe, expect, it } from 'vitest';
 import { freelancerTemplate, mapEvents } from '@stellarbooks/core';
-import { GOLDEN_FIXTURES } from '../../../fixtures/data/golden-fixtures.js';
+import { SYNTHETIC_CASES } from '../../../fixtures/data/synthetic-cases.js';
 import {
   decodeNativePayment,
   extractEvents,
@@ -84,9 +84,12 @@ it('rejects raw RPC ledger responses instead of treating them as empty', () => {
   );
 });
 
-describe('stellar-ingest golden fixtures', () => {
-  for (const fixture of GOLDEN_FIXTURES) {
-    it(`correctly extracts and maps fixture: ${fixture.id} (${fixture.operationType})`, async () => {
+// Synthetic cases exercise classifier control flow only. Their ledgers are invented and their
+// journal expectations come from the mapper, so they do not prove agreement with the chain (Q-035).
+describe('stellar-ingest synthetic classifier cases', () => {
+  for (const fixture of SYNTHETIC_CASES) {
+    it(`classifies synthetic case: ${fixture.id} (${fixture.operationType})`, async () => {
+      expect(fixture.provenance).toBe('synthetic');
       const tmpl = freelancerTemplate();
       const source = new FixtureLedgerSource([fixture]);
       const tracked = new Set(fixture.trackedWallets);

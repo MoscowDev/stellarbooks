@@ -8,3 +8,4 @@ docs/api/
 !.env.example
 *.log
 .DS_Store
+.pnpm-store/

@@ -1,28 +1,30 @@
 /**
- * Utility functions for loading and querying StellarBooks golden fixtures.
+ * Utility functions for loading and querying the synthetic classifier cases.
+ *
+ * These cases are not golden fixtures; see `data/synthetic-cases.ts`.
  *
  * @module
  */
-import { GOLDEN_FIXTURES } from './data/golden-fixtures.js';
-import type { GoldenFixture } from './types.js';
+import { SYNTHETIC_CASES } from './data/synthetic-cases.js';
+import type { SyntheticCase } from './types.js';
 
 /**
- * Returns all golden fixtures.
+ * Returns all synthetic classifier cases.
  */
-export function getAllGoldenFixtures(): readonly GoldenFixture[] {
-  return GOLDEN_FIXTURES;
+export function getAllSyntheticCases(): readonly SyntheticCase[] {
+  return SYNTHETIC_CASES;
 }
 
 /**
- * Finds a golden fixture by unique ID.
+ * Finds a synthetic classifier case by unique ID.
  */
-export function getGoldenFixtureById(id: string): GoldenFixture | undefined {
-  return GOLDEN_FIXTURES.find((f) => f.id === id);
+export function getSyntheticCaseById(id: string): SyntheticCase | undefined {
+  return SYNTHETIC_CASES.find((f) => f.id === id);
 }
 
 /**
- * Finds golden fixtures by Stellar operation type.
+ * Finds synthetic classifier cases by Stellar operation type.
  */
-export function getGoldenFixturesByOperation(opType: string): readonly GoldenFixture[] {
-  return GOLDEN_FIXTURES.filter((f) => f.operationType === opType);
+export function getSyntheticCasesByOperation(opType: string): readonly SyntheticCase[] {
+  return SYNTHETIC_CASES.filter((f) => f.operationType === opType);
 }
