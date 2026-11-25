@@ -19,24 +19,25 @@ wallet in recent live testnet ledgers and requires an exact match with on-chain 
 
 ## First Wave
 
-These draft issues are independent and have concrete acceptance tests. Review their scope
+These issues are independent and have concrete acceptance tests. Review their scope
 against the Wave's timeline and available reviewer capacity before nominating them.
 
-| Draft                                                               | Contributor outcome                                                                          |
-| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| [Ledger continuity](../issues-backlog/02-ledger-continuity.md)      | Test RPC responses that start before or after the requested ledger.                          |
-| [Native payment fixtures](../issues-backlog/07-classic-payments.md) | Add an independently reviewed result for the captured payment and both wallet perspectives.  |
-| [Account statements](../issues-backlog/26-statements.md)            | Add a multicommodity statement example covering quiet periods and explicit opening balances. |
-| [Report exports](../issues-backlog/27-report-export.md)             | Add export round-trip coverage and an example consumer for decimal-string minor units.       |
+| Draft                                                                               | Contributor outcome                                                                          |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [#1 Ledger sequence validation](https://github.com/MoscowDev/stellarbooks/issues/1) | Test RPC responses that start before or after the requested ledger.                          |
+| [#2 Both payment perspectives](https://github.com/MoscowDev/stellarbooks/issues/2)  | Add an independently reviewed result for the captured payment and both wallet perspectives.  |
+| [#3 Account statements](https://github.com/MoscowDev/stellarbooks/issues/3)         | Add a multicommodity statement example covering quiet periods and explicit opening balances. |
+| [#4 Report exports](https://github.com/MoscowDev/stellarbooks/issues/4)             | Add export round-trip coverage and an example consumer for decimal-string minor units.       |
 
 Follow the [Drips maintainer guide](https://docs.drips.network/wave/maintainers/participating-in-a-wave/)
 (checked 2026-11-25): install the Drips GitHub App, apply the public repository to a Wave Program,
 and wait for approval. Each issue added to a Wave needs a complexity level, which sets its points
-(Trivial 100, Medium 150, High 200). The drafts in `issues-backlog/` are not GitHub issues yet;
-create the nominated ones on GitHub first. Assign contributors quickly and resolve issues before the
+(Trivial 100, Medium 150, High 200). The four first-Wave issues exist on GitHub as #1 to #4
+(Medium, Medium, Trivial, Trivial); the other drafts in `issues-backlog/` are not GitHub issues
+yet. Assign contributors quickly and resolve issues before the
 Wave ends so contributors receive their points.
 
-Nominate the four drafts after repository approval. Confirm who will review ingestion
+Add issues #1 to #4 in the Drips dashboard after repository approval. Confirm who will review ingestion
 and reporting PRs during the Wave. One maintainer can cover both areas if available.
 
 ## Verification and scope

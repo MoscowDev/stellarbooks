@@ -2,6 +2,8 @@
 
 **Complexity** Trivial
 
+**GitHub issue** [#3](https://github.com/MoscowDev/stellarbooks/issues/3) (first Wave)
+
 ## Context
 
 Account statements are implemented and need an example with quiet periods and multiple assets.

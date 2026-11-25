@@ -2,6 +2,8 @@
 
 **Complexity** Trivial
 
+**GitHub issue** [#4](https://github.com/MoscowDev/stellarbooks/issues/4) (first Wave)
+
 ## Context
 
 Report exports preserve bigint minor units as decimal text.

@@ -2,6 +2,8 @@
 
 **Complexity** Medium
 
+**GitHub issue** [#1](https://github.com/MoscowDev/stellarbooks/issues/1) (first Wave)
+
 ## Context
 
 The RPC source validates the sequence before decoding ledger transactions. This makes sequence validation testable with mocked RPC responses.

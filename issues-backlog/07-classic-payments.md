@@ -2,9 +2,11 @@
 
 **Complexity** Medium
 
+**GitHub issue** [#2](https://github.com/MoscowDev/stellarbooks/issues/2) (first Wave)
+
 ## Context
 
-The raw fixture verifies the outgoing payment and fee with only the sender tracked.
+The tests in `ledger-decoder.test.ts` verify the outgoing payment and fee of transaction 6 in captured ledger 5796891 with only the sender tracked.
 
 ## Scope
 
@@ -12,7 +14,7 @@ Extend the fixture assertions to cover the recipient independently and both acco
 
 ## Where
 
-`packages/stellar-ingest/test/ingest.test.ts`
+`packages/stellar-ingest/test/ledger-decoder.test.ts`
 
 ## Acceptance criteria
 
