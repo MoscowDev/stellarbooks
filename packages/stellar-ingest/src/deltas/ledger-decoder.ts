@@ -289,7 +289,7 @@ export function decodeLedger(
       } else {
         throw new Error(`Transaction ${hash} uses unsupported envelope type ${envelope.type}`);
       }
-      const txSource = muxedAddress(tx.sourceAccount).base;
+      const txSource = muxedAddress(tx.sourceAccount);
       const { feeCharged, result } = processing.result.result;
       const successful = result.type === 'txSuccess' || result.type === 'txFeeBumpInnerSuccess';
       const parts = transactionMetaParts(processing.txApplyProcessing);
@@ -326,17 +326,16 @@ export function decodeLedger(
       const operations: OperationRecord[] = tx.operations.map((op, opIndex) => {
         const changes = successful ? (parts.operations[opIndex] ?? []) : [];
         const detail = successful ? operationDetail(op.body, changes) : undefined;
-        const source = op.sourceAccount ? muxedAddress(op.sourceAccount) : undefined;
+        // An operation without its own source uses the transaction source, muxed or not.
+        const source = op.sourceAccount ? muxedAddress(op.sourceAccount) : txSource;
         return {
           index: opIndex,
           type: snakeCase(op.body.type),
-          sourceAccount: source?.base ?? txSource,
+          sourceAccount: source.base,
           ...(detail
             ? {
                 detail:
-                  source && source.full !== source.base
-                    ? { ...detail, sourceMuxed: source.full }
-                    : detail,
+                  source.full !== source.base ? { ...detail, sourceMuxed: source.full } : detail,
               }
             : {}),
         };

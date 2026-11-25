@@ -24,6 +24,7 @@ export const TARGETS = [
   'path_payment_strict_receive',
   'path_payment_strict_send_to_other',
   'muxed_payment',
+  'muxed_source_payment',
   'credit_payment',
   'trustline_removal',
   'liquidity_pool_deposit',
@@ -60,6 +61,9 @@ export function targetsOf(tx: xdr.Transaction): Set<Target> {
       }
       case 'payment':
         if (body.value.destination.type === 'keyTypeMuxedEd25519') found.add('muxed_payment');
+        if (op.sourceAccount === null && tx.sourceAccount.type === 'keyTypeMuxedEd25519') {
+          found.add('muxed_source_payment');
+        }
         if (body.value.asset.type !== 'assetTypeNative') found.add('credit_payment');
         break;
       case 'changeTrust':

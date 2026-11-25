@@ -2,8 +2,9 @@
  * Structural checks for Stellar strkey addresses (SEP-23).
  *
  * These checks validate the prefix, length and base32 alphabet only. They do **not** verify the
- * CRC16 checksum or decode the payload, because `core` has no dependencies. Full validation is
- * performed by `@stellarbooks/stellar-ingest` using the official SDK. Source:
+ * CRC16 checksum or decode the payload, because `core` has no dependencies (Q-033). Addresses
+ * that `@stellarbooks/stellar-ingest` decodes from XDR are encoded by the official SDK and are
+ * well-formed; addresses supplied by callers are only checked structurally. Source:
  * docs/research/seps.md (SEP-23 v1.4.0: G and C addresses are 56 characters, M addresses 69).
  *
  * @module

@@ -27,7 +27,8 @@ payer (outer source for fee-bumps), `feeCharged`, success, memo, operations with
 balance deltas of every account and trustline. It checks that the fee payer's fee changes net to
 exactly `-feeCharged`. See [STELLAR-MAPPING.md](../../docs/STELLAR-MAPPING.md).
 
-`classifyTransaction` and `extractEvents` turn records into events for tracked wallets. Changes the
+`classifyTransaction` and `extractEvents` turn records into events for tracked wallets. The
+[whole-ledger example](../../examples/whole-ledger.mjs) runs the full pipeline offline. Changes the
 classifier cannot explain, such as Soroban token movements and offer fills, become
 `unclassified_change` events for the suspense account. They are never dropped.
 

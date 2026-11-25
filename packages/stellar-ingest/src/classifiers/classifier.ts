@@ -42,6 +42,12 @@ function muxedFields(
   };
 }
 
+/**
+ * First `eventIndex` used for suspense (`unclassified_change`) events. Transfer sides use 0 and 1,
+ * and contract events use `2i` and `2i + 1`, so suspense events start well above them.
+ */
+const RESIDUAL_EVENT_BASE = 1000;
+
 /** Deltas of one wallet, limited to one operation when the decoder recorded operation indexes. */
 function opDeltas(tx: TransactionRecord, wallet: string, opIndex: number) {
   return tx.deltas.filter(
@@ -440,8 +446,16 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
     }
   });
 
-  // 4. Unexplained balance changes on tracked wallets go to suspense (ADR-0008)
-  const unclassified = (wallet: string, asset: AssetId, units: bigint, reason: string): void => {
+  // 4. Unexplained balance changes on tracked wallets go to suspense (ADR-0008). Their event
+  // index is RESIDUAL_EVENT_BASE plus a position that depends only on the transaction's data,
+  // never on which wallets are tracked, so their keys stay stable when the tracked set changes.
+  const unclassified = (
+    eventIndex: number,
+    wallet: string,
+    asset: AssetId,
+    units: bigint,
+    reason: string,
+  ): void => {
     events.push({
       kind: 'unclassified_change',
       source: {
@@ -451,7 +465,7 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
         txHash: tx.txHash,
         stage: 'operation',
         opIndex: 0,
-        eventIndex: events.length,
+        eventIndex,
       },
       closeTime: ctx.closeTime,
       wallet,
@@ -483,11 +497,14 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
         add(e.wallet, e.amount.asset, e.action === 'lock' ? e.amount.units : -e.amount.units);
       }
     }
-    for (const row of [...residual.values()].sort((a, b) =>
-      a.wallet === b.wallet ? (a.asset < b.asset ? -1 : 1) : a.wallet < b.wallet ? -1 : 1,
-    )) {
+    // Positions come from the sorted wallet and asset pairs of all deltas in the transaction.
+    const positions = [...new Set(tx.deltas.map((d) => `${d.wallet}:${d.asset}`))].sort();
+    const extras = [...residual.keys()].filter((k) => !positions.includes(k)).sort();
+    const order = [...positions, ...extras];
+    for (const [key, row] of [...residual.entries()].sort(([a], [b]) => (a < b ? -1 : 1))) {
       if (row.units !== 0n) {
         unclassified(
+          RESIDUAL_EVENT_BASE + order.indexOf(key),
           row.wallet,
           row.asset,
           row.units,
@@ -500,13 +517,14 @@ export function classifyTransaction(tx: TransactionRecord, ctx: ClassifyContext)
 
   // Normalized input without complete deltas: report deltas whose wallet and asset no event
   // touched. A native delta equal to the charged fee on the fee payer is treated as the fee.
-  tx.deltas.forEach((d) => {
+  tx.deltas.forEach((d, position) => {
     if (!isTracked(ctx.tracked, d.wallet)) return;
     if (d.asset === NATIVE_ASSET && d.wallet === tx.feePayer && d.deltaUnits === -tx.feeCharged) {
       return;
     }
     if (!handledDeltaKeys.has(`${d.wallet}:${d.asset}`)) {
       unclassified(
+        RESIDUAL_EVENT_BASE + position,
         d.wallet,
         d.asset,
         d.deltaUnits,

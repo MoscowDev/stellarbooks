@@ -114,6 +114,21 @@ export function standardRules(system: SystemAccounts, policy: StandardPolicy): M
       },
     }),
     defineRule({
+      id: 'transfer-write-off',
+      description: 'Asset clawed back or burned',
+      matches: (e) => e.kind === 'transfer' && e.direction === 'out' && DESTRUCTIVE_VIAS.has(e.via),
+      lines: (e) => {
+        if (e.kind !== 'transfer') return [];
+        return [
+          line(policy.writeOff, e.amount, counterpartyFields(e.counterparty)),
+          line(system.wallets, negate(e.amount), {
+            ...walletFields(e),
+            ...counterpartyFields(e.counterparty),
+          }),
+        ];
+      },
+    }),
+    defineRule({
       id: 'transfer-internal',
       description: 'Transfer between tracked wallets',
       matches: (e, ctx) => e.kind === 'transfer' && isInternal(e, ctx),
@@ -126,21 +141,6 @@ export function standardRules(system: SystemAccounts, policy: StandardPolicy): M
             ...counterpartyFields(e.counterparty),
           }),
           line(system.internalTransfers, negate(signed), counterpartyFields(e.counterparty)),
-        ];
-      },
-    }),
-    defineRule({
-      id: 'transfer-write-off',
-      description: 'Asset clawed back or burned',
-      matches: (e) => e.kind === 'transfer' && e.direction === 'out' && DESTRUCTIVE_VIAS.has(e.via),
-      lines: (e) => {
-        if (e.kind !== 'transfer') return [];
-        return [
-          line(policy.writeOff, e.amount, counterpartyFields(e.counterparty)),
-          line(system.wallets, negate(e.amount), {
-            ...walletFields(e),
-            ...counterpartyFields(e.counterparty),
-          }),
         ];
       },
     }),

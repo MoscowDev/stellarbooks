@@ -93,6 +93,12 @@ describe('decodeLedger on captured testnet ledger 5796891', () => {
     ]);
   });
 
+  it('reports no balance change for an offer that did not cross', () => {
+    expect(tx(0).operations.map((o) => o.type)).toEqual(['manage_sell_offer']);
+    expect(tx(0).successful).toBe(true);
+    expect(tx(0).deltas).toEqual([]);
+  });
+
   it('charges fees on failed transactions without applying their operations', () => {
     for (const index of [1, 3]) {
       expect(tx(index).successful).toBe(false);
@@ -100,6 +106,23 @@ describe('decodeLedger on captured testnet ledger 5796891', () => {
       expect(tx(index).deltas).toEqual([]);
     }
     expect(tx(1).memo).toEqual({ type: 'id', value: '8649876487544395062' });
+    const failed = tx(1);
+    const { chart, ruleSet } = freelancerTemplate();
+    const tracked = new Set([failed.feePayer]);
+    const events = classifyTransaction(failed, {
+      network: 'testnet',
+      ledger: ledger.sequence,
+      closeTime: ledger.ledgerCloseTime,
+      tracked,
+    });
+    expect(events.map((e) => e.kind)).toEqual(['fee']);
+    const { entries } = mapEvents(events, ruleSet, { chart, trackedWallets: tracked });
+    expect(entries.map((e) => e.lines.map((l) => [l.account, l.amount.units]))).toEqual([
+      [
+        ['6900', 100n],
+        ['1100', -100n],
+      ],
+    ]);
   });
 
   it('attributes a fee-bump fee to the outer fee source', () => {
@@ -249,6 +272,31 @@ describe('classifier safeguards', () => {
     const events = classifyTransaction(payment, ctx(new Set([PAYER])));
     expect(events.map((e) => e.kind)).toEqual(['fee', 'transfer', 'unclassified_change']);
     expect(events[2]).toMatchObject({ delta: amount(NATIVE_ASSET, -5n) });
+  });
+
+  it('keeps suspense keys stable when the tracked wallet set changes', () => {
+    const payment: TransactionRecord = {
+      ...base,
+      deltasComplete: true,
+      operations: [
+        {
+          index: 0,
+          type: 'payment',
+          sourceAccount: PAYER,
+          detail: { destination: PAYEE, asset: NATIVE_ASSET, amount: 10n },
+        },
+      ],
+      deltas: [
+        { wallet: PAYEE, asset: NATIVE_ASSET, deltaUnits: 10n, opIndex: 0 },
+        { wallet: PAYER, asset: NATIVE_ASSET, deltaUnits: -15n, opIndex: 0 },
+      ],
+    };
+    const suspense = (tracked: string[]) =>
+      classifyTransaction(payment, ctx(new Set(tracked))).find(
+        (e) => e.kind === 'unclassified_change' && e.wallet === PAYER,
+      )?.source;
+    expect(suspense([PAYER])).toEqual(suspense([PAYER, PAYEE]));
+    expect(suspense([PAYER])?.eventIndex).toBe(1001);
   });
 
   it('is deterministic for the decoded ledger', () => {

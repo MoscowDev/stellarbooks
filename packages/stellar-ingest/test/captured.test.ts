@@ -55,6 +55,7 @@ describe('captured testnet ledgers', () => {
     'clawback_claimable_balance-5918066',
     'liquidity_pool_deposit-5918402',
     'muxed_payment-5917783',
+    'muxed_source_payment-5920622',
     'path_payment_strict_receive-5919962',
     'path_payment_strict_send_to_other-5919253',
     'trustline_removal-5919140',
@@ -107,6 +108,32 @@ describe('captured testnet ledgers', () => {
     ).toEqual(['122952434', '122952434']);
   });
 
+  it('keeps the muxed ID of a muxed transaction source', () => {
+    const { ledger, tx } = load('muxed_source_payment-5920622');
+    const sender = 'GCKCIQOMGVZXST2W3IGLW2VUSPUEOLJX4PZMGH2KIDVGCTGSXZSATCTD';
+    const receiver = 'GDPJ24777JGOZXLCZE7SZBFMMUTNRHS4CHXFAFCZZ4CX4IQG7WXQOOIS';
+    expect(tx.operations[0]).toEqual({
+      index: 0,
+      type: 'payment',
+      sourceAccount: sender,
+      detail: {
+        destination: receiver,
+        asset: NATIVE_ASSET,
+        amount: 1_000_000_000n,
+        sourceMuxed: 'MCKCIQOMGVZXST2W3IGLW2VUSPUEOLJX4PZMGH2KIDVGCTGSXZSASAA4VQWCVDFXXIWEG',
+      },
+    });
+    expect(tx.deltas).toEqual([
+      { wallet: sender, asset: NATIVE_ASSET, deltaUnits: -1_000_000_000n, opIndex: 0 },
+      { wallet: receiver, asset: NATIVE_ASSET, deltaUnits: 1_000_000_000n, opIndex: 0 },
+    ]);
+    expect(classify(ledger, tx, [sender, receiver])).toEqual([
+      expect.objectContaining({ kind: 'fee', wallet: sender }),
+      expect.objectContaining({ wallet: receiver, counterpartyMuxedId: '8070605040302010' }),
+      expect.objectContaining({ wallet: sender, direction: 'out', muxedId: '8070605040302010' }),
+    ]);
+  });
+
   it('books a clawback out of the holder for the clawed amount', () => {
     const { ledger, tx } = load('clawback-5918543');
     const holder = 'GABNZS22YH5K4KESLEYUV3XL2SA7KX6OF543NN3AGG5NYTAZ3QACY5FI';
@@ -126,6 +153,16 @@ describe('captured testnet ledgers', () => {
         amount: amount(asset, 402_600_000n),
       }),
     ]);
+    // Even when the issuer is tracked too, the destroyed amount is a write-off, not an internal
+    // transfer: no tracked wallet receives it, so internal clearing would never net to zero.
+    const issuer = 'GCGGSHMK4QIHLUQFG57DEUOMWYIREKR3PIEWWJYZLPNFLSGWGSUHXZ7J';
+    const tracked = new Set([holder, issuer]);
+    const { chart, ruleSet } = freelancerTemplate();
+    const mapped = mapEvents(classify(ledger, tx, [...tracked]), ruleSet, {
+      chart,
+      trackedWallets: tracked,
+    });
+    expect(mapped.entries.map((e) => e.ruleId)).toEqual(['fee', 'transfer-write-off']);
   });
 
   it('locks a created claimable balance and sends an unmatched claim to suspense', () => {
